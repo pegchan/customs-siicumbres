@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React + TypeScript + Vite application called "customs-siicumbres". It's a minimal Vite template setup with React 19.1.1 and TypeScript, configured with ESLint for code quality.
+This is a React + TypeScript + Vite application called "customs-siicumbres" - a housing customization system that displays personalization options for homes. The application will be fed by catalogs containing various customization options that users can browse and select to personalize their housing.
+
+### Business Objective
+- Display housing customization options sourced from catalogs
+- Allow users to browse and explore personalization choices
+- Manage catalog data for different customization categories
+- Provide interface for selecting and previewing home personalizations
 
 ## Development Commands
 
