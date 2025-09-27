@@ -1,5 +1,8 @@
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { ImageModal } from './ImageModal';
 import type { CustomizationOption } from '../types';
+import { useSubcategoryConfig } from '../hooks/useSubcategoryConfig';
 
 interface OptionCardProps {
   option: CustomizationOption;
@@ -8,7 +11,19 @@ interface OptionCardProps {
 }
 
 export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
+  const [showModal, setShowModal] = useState(false);
+  const { isSubcategoryOptional } = useSubcategoryConfig();
+  
+  // Check if this subcategory is optional using dynamic configuration
+  const isOptional = option.subcategory ? isSubcategoryOptional(option.subcategory) : false;
+
+  const handleZoomClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card selection
+    setShowModal(true);
+  };
+
   return (
+    <>
     <motion.div
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
@@ -21,7 +36,7 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
       `}
       onClick={() => onSelect(option)}
     >
-      <div className="aspect-square bg-gray-100 flex items-center justify-center relative">
+      <div className="aspect-square bg-gray-100 flex items-center justify-center relative group">
         {/* Placeholder para imagen */}
         <div className="text-gray-400 text-center">
           <div className="text-3xl mb-2">🎨</div>
@@ -40,12 +55,40 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
             }}
           />
         )}
+        
+        {/* Botón de zoom */}
+        <button
+          onClick={handleZoomClick}
+          className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-lg p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          aria-label="Ampliar imagen"
+        >
+          <svg 
+            className="w-4 h-4 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+            />
+          </svg>
+        </button>
       </div>
       
       <div className="p-3">
-        <h4 className="font-medium text-sm text-gray-900 text-center">{option.name}</h4>
+        <div className="flex items-center justify-center gap-1 mb-1">
+          <h4 className="font-medium text-sm text-gray-900 text-center">{option.name}</h4>
+          {isOptional && (
+            <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+              Opcional
+            </span>
+          )}
+        </div>
         {option.price && (
-          <p className="text-xs text-gray-600 text-center mt-1">
+          <p className="text-xs text-gray-600 text-center">
             ${option.price.toLocaleString()}
           </p>
         )}
@@ -63,5 +106,12 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
         </motion.div>
       )}
     </motion.div>
+
+    <ImageModal
+      isOpen={showModal}
+      onClose={() => setShowModal(false)}
+      option={option}
+    />
+    </>
   );
 }

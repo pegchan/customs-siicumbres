@@ -128,3 +128,18 @@ export type CustomizationStep =
   | 'closets'
   | 'extras'
   | 'resumen';
+
+// Configuration for optional subcategories
+export interface SubcategoryConfig {
+  [key: string]: {
+    isOptional: boolean;
+    displayName?: string;
+    description?: string;
+  };
+}
+
+export interface SubcategoryConfigResponse {
+  subcategories: SubcategoryConfig;
+  lastUpdated: string;
+  version: string;
+}
