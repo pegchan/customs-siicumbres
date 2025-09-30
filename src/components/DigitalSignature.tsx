@@ -27,11 +27,11 @@ export function DigitalSignature({ onSign, isSigned }: DigitalSignatureProps) {
 
   // Verificar si el formulario es válido
   useEffect(() => {
-    const hasRequiredFields = name.trim() && email.trim();
-    const hasSignature = signatureType === 'text' 
-      ? textSignature.trim() 
+    const hasRequiredFields = !!(name.trim() && email.trim());
+    const hasSignature = signatureType === 'text'
+      ? textSignature.trim()
       : canvasSignature;
-    
+
     setIsValid(hasRequiredFields && !!hasSignature);
   }, [name, email, textSignature, canvasSignature, signatureType]);
 
