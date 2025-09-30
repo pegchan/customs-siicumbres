@@ -15,12 +15,23 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Corporate Colors */
+  --color-primary-dark: #012D58;
+  --color-primary-light: #02ACF2;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* Aplicar fondo corporativo a toda la página */
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(2, 172, 242, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(1, 45, 88, 0.06) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #e6f4fc 100%);
+  background-attachment: fixed;
 }
 
 * {
@@ -35,4 +46,100 @@ body {
 
 .no-scrollbar::-webkit-scrollbar { 
   display: none;  /* Safari and Chrome */
+}
+
+/* Corporate Background Patterns */
+.corporate-gradient-subtle {
+  background: linear-gradient(135deg, rgba(1, 45, 88, 0.02) 0%, rgba(2, 172, 242, 0.03) 100%);
+  background-attachment: fixed;
+}
+
+.corporate-radial {
+  background: radial-gradient(ellipse at top right, rgba(2, 172, 242, 0.08) 0%, rgba(1, 45, 88, 0.02) 50%, rgba(255, 255, 255, 0) 100%);
+  background-attachment: fixed;
+}
+
+.corporate-mesh {
+  background-color: #fafbfc;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(2, 172, 242, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(1, 45, 88, 0.04) 0%, transparent 50%);
+  background-size: 100% 100%;
+  background-attachment: fixed;
+}
+
+.corporate-pattern {
+  background-color: #f8fafc;
+  background-image: 
+    linear-gradient(rgba(1, 45, 88, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 45, 88, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-attachment: fixed;
+}
+
+/* Animated Corporate Background */
+@keyframes corporate-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.corporate-animated {
+  background: linear-gradient(-45deg, 
+    rgba(1, 45, 88, 0.03), 
+    rgba(2, 172, 242, 0.05), 
+    rgba(255, 255, 255, 0.8),
+    rgba(1, 45, 88, 0.02), 
+    rgba(2, 172, 242, 0.04));
+  background-size: 400% 400%;
+  animation: corporate-flow 20s ease infinite;
+}
+
+/* Full Page Background Options */
+.corporate-blueprint {
+  background-color: #f8fafc;
+  background-image: 
+    linear-gradient(rgba(1, 45, 88, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 45, 88, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(2, 172, 242, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 172, 242, 0.05) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-attachment: fixed;
+}
+
+.corporate-texture {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(2, 172, 242, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(1, 45, 88, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #e6f4fc 100%);
+  background-attachment: fixed;
+}
+
+.corporate-dots {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(circle, rgba(1, 45, 88, 0.1) 1px, transparent 1px),
+    radial-gradient(circle, rgba(2, 172, 242, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px, 60px 60px;
+  background-position: 0 0, 15px 15px;
+  background-attachment: fixed;
+}
+
+.corporate-waves {
+  background: 
+    linear-gradient(135deg, #f8fafc 25%, transparent 25%), 
+    linear-gradient(225deg, #f8fafc 25%, transparent 25%), 
+    linear-gradient(45deg, #f8fafc 25%, transparent 25%), 
+    linear-gradient(315deg, #f8fafc 25%, #e6f4fc 25%);
+  background-position: 20px 0, 20px 0, 0 0, 0 0;
+  background-size: 40px 40px;
+  background-attachment: fixed;
+}
+
+.corporate-geometric {
+  background-color: #f8fafc;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(1, 45, 88, 0.03) 0px, rgba(1, 45, 88, 0.03) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(-45deg, rgba(2, 172, 242, 0.02) 0px, rgba(2, 172, 242, 0.02) 1px, transparent 1px, transparent 20px);
+  background-attachment: fixed;
 }

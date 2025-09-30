@@ -82,7 +82,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
               <span className="text-2xl mr-3">{section.icon}</span>
               <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
               {state.interiores[section.key] && (
-                <span className="ml-auto text-green-600 font-medium">
+                <span className="ml-auto text-corporate-600 font-medium">
                   ✓ {state.interiores[section.key]?.name}
                 </span>
               )}
@@ -106,7 +106,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
         >
           <button
             onClick={handleContinue}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
           >
             Continuar a Cocina
           </button>

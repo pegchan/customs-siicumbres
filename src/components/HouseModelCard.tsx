@@ -15,7 +15,7 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
       className={`
         relative cursor-pointer rounded-xl overflow-hidden shadow-lg transition-all duration-300
         ${isSelected 
-          ? 'ring-4 ring-blue-500 shadow-xl' 
+          ? 'ring-4 ring-corporate-500 shadow-xl' 
           : 'hover:shadow-xl border border-gray-200'
         }
       `}
@@ -49,7 +49,7 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-2"
+          className="absolute top-2 right-2 bg-corporate-500 text-white rounded-full p-2"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

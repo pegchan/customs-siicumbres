@@ -3,9 +3,10 @@ import { useCustomization } from '../context/CustomizationContext';
 
 interface SummaryPageProps {
   onNext?: () => void;
+  onShowPreview?: () => void;
 }
 
-export function SummaryPage({ onNext }: SummaryPageProps) {
+export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
   const { state, resetCustomization } = useCustomization();
 
   const handleStartOver = () => {
@@ -14,8 +15,9 @@ export function SummaryPage({ onNext }: SummaryPageProps) {
   };
 
   const handleGenerateFormat = () => {
-    // Future: Generate PDF or final format
-    alert('Funcionalidad de generación de formato en desarrollo');
+    if (onShowPreview) {
+      onShowPreview();
+    }
   };
 
   const getCompletionStats = () => {
@@ -83,19 +85,19 @@ export function SummaryPage({ onNext }: SummaryPageProps) {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
-        className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-200"
+        className="bg-gradient-to-r from-corporate-50 to-corporate-100 rounded-xl p-6 mb-8 border border-corporate-200"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Estado de Personalización</h2>
-          <span className="text-2xl font-bold text-blue-600">{completionPercentage}%</span>
+          <span className="text-2xl font-bold text-corporate-600">{completionPercentage}%</span>
         </div>
-        <div className="w-full bg-blue-200 rounded-full h-3 mb-2">
+        <div className="w-full bg-corporate-200 rounded-full h-3 mb-2">
           <div 
-            className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+            className="bg-corporate-600 h-3 rounded-full transition-all duration-500"
             style={{ width: `${completionPercentage}%` }}
           />
         </div>
-        <p className="text-sm text-blue-600">
+        <p className="text-sm text-corporate-600">
           {completedSelections} de {totalSelections} elementos personalizados
         </p>
       </motion.div>
@@ -274,9 +276,9 @@ export function SummaryPage({ onNext }: SummaryPageProps) {
       >
         <button
           onClick={handleGenerateFormat}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+          className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
         >
-          📝 Generar Formato Final
+          📄 Previsualizar y Generar PDF
         </button>
         
         <button

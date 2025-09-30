@@ -100,13 +100,13 @@ export function ClosetsPage({ onNext }: ClosetsPageProps) {
         <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
           <span>Progreso:</span>
           <div className="flex items-center space-x-1">
-            <span className="font-semibold text-blue-600">{completedSections}</span>
+            <span className="font-semibold text-corporate-600">{completedSections}</span>
             <span>/</span>
             <span>{totalSections}</span>
           </div>
           <div className="w-24 bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-corporate-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${(completedSections / totalSections) * 100}%` }}
             />
           </div>
@@ -130,7 +130,7 @@ export function ClosetsPage({ onNext }: ClosetsPageProps) {
                 <span className="text-2xl mr-3">{section.icon}</span>
                 <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
                 {state.closets[section.key] && (
-                  <span className="ml-auto text-green-600 font-medium">
+                  <span className="ml-auto text-corporate-600 font-medium">
                     ✓ {state.closets[section.key]?.name}
                   </span>
                 )}
@@ -153,7 +153,7 @@ export function ClosetsPage({ onNext }: ClosetsPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={handleContinue}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
           >
             Continuar a Extras
           </motion.button>

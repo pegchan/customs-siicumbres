@@ -10,13 +10,17 @@ import { BathroomPage } from './BathroomPage';
 import { ClosetsPage } from './ClosetsPage';
 import { ExtrasPage } from './ExtrasPage';
 import { SummaryPage } from './SummaryPage';
+import { DocumentPreviewPage } from './DocumentPreviewPage';
 import { SummaryPanel } from './SummaryPanel';
 import { SubcategoryConfigManager } from './SubcategoryConfigManager';
+import { pdfGeneratorService } from '../services/pdfGeneratorService';
+import type { SignatureData } from './DigitalSignature';
 
 export function CustomizationLayout() {
   const [currentStep, setCurrentStep] = useState<CustomizationStep>('model');
   const [completedSteps, setCompletedSteps] = useState<CustomizationStep[]>([]);
   const [showConfigManager, setShowConfigManager] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const { state } = useCustomization();
 
   const handleStepComplete = (step: CustomizationStep) => {
@@ -37,6 +41,24 @@ export function CustomizationLayout() {
 
   const handleStepClick = (step: CustomizationStep) => {
     setCurrentStep(step);
+    setShowPreview(false); // Salir del preview al cambiar de paso
+  };
+
+  const handleShowPreview = () => {
+    setShowPreview(true);
+  };
+
+  const handleBackFromPreview = () => {
+    setShowPreview(false);
+  };
+
+  const handleGeneratePDF = async (signatureData?: SignatureData) => {
+    try {
+      await pdfGeneratorService.generatePDF(state, signatureData);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF. Por favor intenta de nuevo.');
+    }
   };
 
   const handleBackToStart = () => {
@@ -59,22 +81,32 @@ export function CustomizationLayout() {
       case 'extras':
         return <ExtrasPage onNext={handleNext} />;
       case 'resumen':
-        return <SummaryPage onNext={handleBackToStart} />;
+        return <SummaryPage onNext={handleBackToStart} onShowPreview={handleShowPreview} />;
       default:
         return <ModelSelectionPage onNext={handleNext} />;
     }
   };
 
+  // Si estamos en modo preview, mostrar la página de preview
+  if (showPreview) {
+    return (
+      <DocumentPreviewPage
+        onBack={handleBackFromPreview}
+        onGeneratePDF={handleGeneratePDF}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl font-bold text-blue-600">🏠</div>
+              <div className="text-2xl font-bold text-corporate-500">🏠</div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Personalizaciones  Cumbres Leon</h1>
-                <p className="text-sm text-gray-600">Personaliza tu hogar ideal</p>
+                <h1 className="text-xl font-bold text-corporate-800">Personalizaciones  Cumbres Leon</h1>
+                <p className="text-sm text-corporate-600">Personaliza tu hogar ideal</p>
               </div>
             </div>
             
@@ -82,7 +114,7 @@ export function CustomizationLayout() {
               {/* Config Manager Button */}
               <button
                 onClick={() => setShowConfigManager(true)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-corporate-600 hover:text-corporate-800 hover:bg-corporate-50 rounded-lg transition-colors"
                 title="Configuración de Subcategorías"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,8 +125,8 @@ export function CustomizationLayout() {
               
               {state.selectedModel && (
                 <div className="text-right">
-                  <div className="text-sm text-gray-600">Modelo seleccionado:</div>
-                  <div className="font-semibold text-gray-900">{state.selectedModel.name}</div>
+                  <div className="text-sm text-corporate-600">Modelo seleccionado:</div>
+                  <div className="font-semibold text-corporate-800">{state.selectedModel.name}</div>
                 </div>
               )}
             </div>

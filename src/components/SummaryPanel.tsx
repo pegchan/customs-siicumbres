@@ -36,16 +36,16 @@ export function SummaryPanel() {
         animate={{ opacity: 1, x: 0 }}
         className="sticky top-0"
       >
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+        <h2 className="text-lg font-bold text-corporate-800 mb-4 flex items-center">
           <span className="mr-2">📝</span>
           Resumen de Personalización
         </h2>
         
-        <div className="bg-blue-50 rounded-lg p-4 mb-6">
-          <div className="text-sm text-blue-600 font-medium mb-1">
+        <div className="bg-corporate-50 rounded-lg p-4 mb-6">
+          <div className="text-sm text-corporate-600 font-medium mb-1">
             Selecciones realizadas
           </div>
-          <div className="text-2xl font-bold text-blue-700">
+          <div className="text-2xl font-bold text-corporate-700">
             {totalSelections}
           </div>
         </div>
@@ -58,13 +58,13 @@ export function SummaryPanel() {
               animate={{ opacity: 1, y: 0 }}
               className="border-b border-gray-200 pb-4"
             >
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
                 <span className="mr-2">🏠</span>
                 Modelo de Casa
               </h3>
               <div className="bg-gray-50 rounded-lg p-3">
-                <div className="font-medium text-gray-900">{state.selectedModel.name}</div>
-                <div className="text-sm text-gray-600">{state.selectedModel.description}</div>
+                <div className="font-medium text-corporate-800">{state.selectedModel.name}</div>
+                <div className="text-sm text-corporate-600">{state.selectedModel.description}</div>
               </div>
             </motion.div>
           )}
@@ -76,7 +76,7 @@ export function SummaryPanel() {
               animate={{ opacity: 1, y: 0 }}
               className="border-b border-gray-200 pb-4"
             >
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
                 <span className="mr-2">🎨</span>
                 Colores de Interiores
               </h3>
@@ -95,8 +95,8 @@ export function SummaryPanel() {
                   
                   return (
                     <div key={room} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">{roomNames[room]}:</span>
-                      <span className="font-medium text-gray-900">{selection.name}</span>
+                      <span className="text-corporate-600">{roomNames[room]}:</span>
+                      <span className="font-medium text-corporate-800">{selection.name}</span>
                     </div>
                   );
                 })}
@@ -111,7 +111,7 @@ export function SummaryPanel() {
               animate={{ opacity: 1, y: 0 }}
               className="border-b border-gray-200 pb-4"
             >
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
                 <span className="mr-2">🍳</span>
                 Cocina
               </h3>
@@ -131,8 +131,8 @@ export function SummaryPanel() {
                   
                   return (
                     <div key={item} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">{itemNames[item]}:</span>
-                      <span className="font-medium text-gray-900">{selection.name}</span>
+                      <span className="text-corporate-600">{itemNames[item]}:</span>
+                      <span className="font-medium text-corporate-800">{selection.name}</span>
                     </div>
                   );
                 })}
@@ -147,7 +147,7 @@ export function SummaryPanel() {
               animate={{ opacity: 1, y: 0 }}
               className="border-b border-gray-200 pb-4"
             >
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
                 <span className="mr-2">🚿</span>
                 Baños
               </h3>
@@ -165,8 +165,8 @@ export function SummaryPanel() {
                   
                   return (
                     <div key={item} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">{itemNames[item]}:</span>
-                      <span className="font-medium text-gray-900">{selection.name}</span>
+                      <span className="text-corporate-600">{itemNames[item]}:</span>
+                      <span className="font-medium text-corporate-800">{selection.name}</span>
                     </div>
                   );
                 })}
@@ -181,7 +181,7 @@ export function SummaryPanel() {
               animate={{ opacity: 1, y: 0 }}
               className="border-b border-gray-200 pb-4"
             >
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
                 <span className="mr-2">💼</span>
                 Closets
               </h3>
@@ -199,8 +199,8 @@ export function SummaryPanel() {
                   
                   return (
                     <div key={item} className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">{itemNames[item]}:</span>
-                      <span className="font-medium text-gray-900">{selection.name}</span>
+                      <span className="text-corporate-600">{itemNames[item]}:</span>
+                      <span className="font-medium text-corporate-800">{selection.name}</span>
                     </div>
                   );
                 })}
@@ -209,8 +209,16 @@ export function SummaryPanel() {
           )}
         </div>
 
+        {totalSelections > 0 && (
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="text-center text-corporate-600 text-sm">
+              <p>💡 Ve al paso de <strong>Resumen</strong> para previsualizar y generar tu PDF personalizado</p>
+            </div>
+          </div>
+        )}
+
         {totalSelections === 0 && (
-          <div className="text-center text-gray-500 mt-8">
+          <div className="text-center text-corporate-500 mt-8">
             <div className="text-4xl mb-2">🏠</div>
             <p className="text-sm">
               Comienza seleccionando un modelo de casa para ver tu resumen aquí.

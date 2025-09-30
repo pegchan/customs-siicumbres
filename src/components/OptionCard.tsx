@@ -30,7 +30,7 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
       className={`
         relative cursor-pointer rounded-lg overflow-hidden shadow-md transition-all duration-300
         ${isSelected 
-          ? 'ring-3 ring-blue-500 shadow-lg' 
+          ? 'ring-3 ring-corporate-500 shadow-lg' 
           : 'hover:shadow-lg border border-gray-200 hover:border-gray-300'
         }
       `}
@@ -63,7 +63,7 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
           aria-label="Ampliar imagen"
         >
           <svg 
-            className="w-4 h-4 text-gray-700"
+            className="w-4 h-4 text-corporate-700"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -80,15 +80,15 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
       
       <div className="p-3">
         <div className="flex items-center justify-center gap-1 mb-1">
-          <h4 className="font-medium text-sm text-gray-900 text-center">{option.name}</h4>
+          <h4 className="font-medium text-sm text-corporate-800 text-center">{option.name}</h4>
           {isOptional && (
-            <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-corporate-100 text-corporate-700 px-1.5 py-0.5 rounded-full font-medium">
               Opcional
             </span>
           )}
         </div>
         {option.price && (
-          <p className="text-xs text-gray-600 text-center">
+          <p className="text-xs text-corporate-600 text-center">
             ${option.price.toLocaleString()}
           </p>
         )}
@@ -98,7 +98,7 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1.5"
+          className="absolute top-2 right-2 bg-corporate-500 text-white rounded-full p-1.5"
         >
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

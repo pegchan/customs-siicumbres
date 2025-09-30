@@ -81,11 +81,11 @@ export function CustomizationStepper({ currentStep, completedSteps, onStepClick 
                   className={`
                     flex flex-col items-center p-3 rounded-lg transition-all duration-200 min-w-[100px]
                     ${isCurrent 
-                      ? 'bg-blue-50 text-blue-600 ring-2 ring-blue-500' 
+                      ? 'bg-corporate-50 text-corporate-600 ring-2 ring-corporate-500' 
                       : isCompleted 
-                      ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+                      ? 'bg-corporate-100 text-corporate-700 hover:bg-corporate-200' 
                       : isAccessible
-                      ? 'text-gray-600 hover:bg-gray-50'
+                      ? 'text-corporate-600 hover:bg-corporate-50'
                       : 'text-gray-400 cursor-not-allowed'
                     }
                   `}
@@ -105,7 +105,7 @@ export function CustomizationStepper({ currentStep, completedSteps, onStepClick 
                 {index < steps.length - 1 && (
                   <div className={`
                     w-8 h-0.5 mx-2
-                    ${index < currentStepIndex || isCompleted ? 'bg-green-400' : 'bg-gray-300'}
+                    ${index < currentStepIndex || isCompleted ? 'bg-corporate-500' : 'bg-gray-300'}
                   `} />
                 )}
               </div>

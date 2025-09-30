@@ -144,13 +144,13 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
         <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
           <span>Progreso obligatorio:</span>
           <div className="flex items-center space-x-1">
-            <span className="font-semibold text-blue-600">{completedRequiredSections}</span>
+            <span className="font-semibold text-corporate-600">{completedRequiredSections}</span>
             <span>/</span>
             <span>{requiredSections.length}</span>
           </div>
           <div className="w-24 bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-corporate-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${(completedRequiredSections / requiredSections.length) * 100}%` }}
             />
           </div>
@@ -177,7 +177,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
                   {section.required && <span className="text-red-500 ml-1">*</span>}
                 </h2>
                 {currentSelection && (
-                  <span className="ml-auto text-green-600 font-medium">
+                  <span className="ml-auto text-corporate-600 font-medium">
                     ✓ {currentSelection.name}
                   </span>
                 )}
@@ -205,7 +205,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
             <span className="text-2xl mr-3">🔒</span>
             <h2 className="text-xl font-semibold text-gray-900">Protecciones (Opcional)</h2>
             {extrasState.protecciones.length > 0 && (
-              <span className="ml-auto text-green-600 font-medium">
+              <span className="ml-auto text-corporate-600 font-medium">
                 ✓ {extrasState.protecciones.length} seleccionadas
               </span>
             )}
@@ -232,7 +232,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
             <span className="text-2xl mr-3">🪟</span>
             <h2 className="text-xl font-semibold text-gray-900">Reflejante en Ventanas (Opcional)</h2>
             {extrasState.reflejante.length > 0 && (
-              <span className="ml-auto text-green-600 font-medium">
+              <span className="ml-auto text-corporate-600 font-medium">
                 ✓ {extrasState.reflejante.length} seleccionadas
               </span>
             )}
@@ -254,7 +254,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={handleContinue}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
           >
             Ver Resumen Final
           </motion.button>

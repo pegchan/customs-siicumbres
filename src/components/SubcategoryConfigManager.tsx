@@ -1,4 +1,4 @@
-import React from 'react';
+// import type React from 'react';
 import { motion } from 'framer-motion';
 import { useSubcategoryConfig } from '../hooks/useSubcategoryConfig';
 
@@ -42,18 +42,18 @@ export function SubcategoryConfigManager({ isOpen, onClose }: SubcategoryConfigM
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {/* Status */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div className="mb-6 p-4 bg-corporate-50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-blue-900">Estado de Configuración</h3>
+              <h3 className="font-medium text-corporate-900">Estado de Configuración</h3>
               <button
                 onClick={refreshConfig}
                 disabled={loading}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm rounded-md transition-colors"
+                className="px-3 py-1 bg-corporate-600 hover:bg-corporate-700 disabled:bg-corporate-400 text-white text-sm rounded-md transition-colors"
               >
                 {loading ? 'Actualizando...' : 'Actualizar'}
               </button>
             </div>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-corporate-700">
               Última actualización: {formatDate(lastFetched)}
             </p>
             {error && (
@@ -96,8 +96,8 @@ export function SubcategoryConfigManager({ isOpen, onClose }: SubcategoryConfigM
                         <td className="px-4 py-3 text-sm">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             value.isOptional 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-blue-100 text-blue-800'
+                              ? 'bg-corporate-100 text-corporate-800' 
+                              : 'bg-corporate-200 text-corporate-900'
                           }`}>
                             {value.isOptional ? 'Opcional' : 'Obligatorio'}
                           </span>
@@ -112,7 +112,7 @@ export function SubcategoryConfigManager({ isOpen, onClose }: SubcategoryConfigM
 
           {loading && !config && (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-corporate-600"></div>
               <span className="ml-3 text-gray-600">Cargando configuración...</span>
             </div>
           )}
