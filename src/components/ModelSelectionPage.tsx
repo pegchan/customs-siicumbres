@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
 import { houseModels } from '../data/mockData';
 import { HouseModelCard } from './HouseModelCard';
-import { useAutoScroll } from '../hooks/useAutoScroll';
 import type { HouseModel } from '../types';
 
 interface ModelSelectionPageProps {
@@ -11,7 +10,6 @@ interface ModelSelectionPageProps {
 
 export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
   const { state, setModel } = useCustomization();
-  const { scrollToTop } = useAutoScroll();
 
   const handleModelSelect = (model: HouseModel) => {
     setModel(model);
@@ -19,7 +17,7 @@ export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
 
   const handleContinue = () => {
     if (state.selectedModel) {
-      scrollToTop();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         onNext();
       }, 300);
@@ -82,7 +80,7 @@ export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
         >
           <button
             onClick={handleContinue}
-            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
           >
             Continuar con la Personalización
           </button>
