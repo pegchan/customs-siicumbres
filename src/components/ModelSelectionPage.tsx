@@ -2,28 +2,13 @@ import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
 import { houseModels } from '../data/mockData';
 import { HouseModelCard } from './HouseModelCard';
-import { useAutoScroll } from '../hooks/useAutoScroll';
 import type { HouseModel } from '../types';
 
-interface ModelSelectionPageProps {
-  onNext: () => void;
-}
-
-export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
+export function ModelSelectionPage() {
   const { state, setModel } = useCustomization();
-  const { scrollToTop } = useAutoScroll();
 
   const handleModelSelect = (model: HouseModel) => {
     setModel(model);
-  };
-
-  const handleContinue = () => {
-    if (state.selectedModel) {
-      scrollToTop();
-      setTimeout(() => {
-        onNext();
-      }, 300);
-    }
   };
 
   return (
@@ -78,14 +63,14 @@ export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          className="text-center mt-8 p-6 bg-green-50 border-2 border-green-200 rounded-lg"
         >
-          <button
-            onClick={handleContinue}
-            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-          >
-            Continuar con la Personalización
-          </button>
+          <p className="text-lg font-semibold text-green-800">
+            ✓ Modelo seleccionado: {state.selectedModel.name}
+          </p>
+          <p className="text-sm text-green-600 mt-2">
+            En construccion ...
+          </p>
         </motion.div>
       )}
     </motion.div>
