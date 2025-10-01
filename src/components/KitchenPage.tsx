@@ -1,94 +1,34 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
 import { mockCatalog } from '../data/mockData';
-import { HorizontalOptionGrid } from './HorizontalOptionGrid';
-import { useAutoScroll } from '../hooks/useAutoScroll';
-import type { CustomizationOption, CustomizationState } from '../types';
+import { OptionCard } from './OptionCard';
+import type { CustomizationOption } from '../types';
 
-interface KitchenPageProps {
-  onNext: () => void;
-}
+type KitchenKey = 'alacenaSuperior' | 'alacenaInferior' | 'alacenaBarraL' | 'alacenaExtra' | 'cubierta' | 'backsplash' | 'tarja';
 
 const kitchenSections = [
-  {
-    key: 'alacenaSuperior' as keyof CustomizationState['cocina'],
-    title: 'Alacena Superior',
-    icon: '🏠',
-    options: 'alacenas.superior'
-  },
-  {
-    key: 'alacenaInferior' as keyof CustomizationState['cocina'],
-    title: 'Alacena Inferior', 
-    icon: '📦',
-    options: 'alacenas.inferior'
-  },
-  {
-    key: 'alacenaBarraL' as keyof CustomizationState['cocina'],
-    title: 'Barra en L',
-    icon: '🔄',
-    options: 'alacenas.barraL'
-  },
-  {
-    key: 'alacenaExtra' as keyof CustomizationState['cocina'],
-    title: 'Alacena Extra',
-    icon: '➕',
-    options: 'alacenas.extra'
-  },
-  {
-    key: 'cubierta' as keyof CustomizationState['cocina'],
-    title: 'Cubierta',
-    icon: '🪨',
-    options: 'cubierta'
-  },
-  {
-    key: 'backsplash' as keyof CustomizationState['cocina'],
-    title: 'Backsplash',
-    icon: '🏺',
-    options: 'backsplash'
-  },
-  {
-    key: 'tarja' as keyof CustomizationState['cocina'],
-    title: 'Tarja',
-    icon: '🚰',
-    options: 'tarja'
-  },
+  { key: 'alacenaSuperior' as KitchenKey, title: 'Alacena Superior', icon: '🏠' },
+  { key: 'alacenaInferior' as KitchenKey, title: 'Alacena Inferior', icon: '📦' },
+  { key: 'alacenaBarraL' as KitchenKey, title: 'Barra en L', icon: '🔄' },
+  { key: 'alacenaExtra' as KitchenKey, title: 'Alacena Extra', icon: '➕' },
+  { key: 'cubierta' as KitchenKey, title: 'Cubierta', icon: '🪨' },
+  { key: 'backsplash' as KitchenKey, title: 'Backsplash', icon: '🏺' },
+  { key: 'tarja' as KitchenKey, title: 'Tarja', icon: '🚰' },
 ];
 
-function getOptionsForSection(optionsPath: string): CustomizationOption[] {
-  const paths = optionsPath.split('.');
-  let current: Record<string, unknown> = mockCatalog.options.cocina;
-  
-  for (const path of paths) {
-    current = current[path] as Record<string, unknown>;
-  }
-  
-  return (current as unknown as CustomizationOption[]) || [];
-}
-
-export function KitchenPage({ onNext }: KitchenPageProps) {
+export function KitchenPage() {
   const { state, setKitchenOption } = useCustomization();
-  const { scrollToNextSection, scrollToTop } = useAutoScroll();
 
-  const handleOptionSelect = (section: keyof CustomizationState['cocina'], option: CustomizationOption, sectionIndex: number) => {
+  const handleOptionSelect = (section: KitchenKey, option: CustomizationOption) => {
     setKitchenOption(section, option);
-    scrollToNextSection(sectionIndex);
   };
 
-  const completedSections = kitchenSections.filter(section => 
+  const isComplete = kitchenSections.every(section =>
     state.cocina[section.key] !== null
-  ).length;
+  );
 
-  const totalSections = kitchenSections.length;
-  const isComplete = completedSections === totalSections;
-
-  const handleContinue = () => {
-    if (isComplete) {
-      scrollToTop();
-      setTimeout(() => {
-        onNext();
-      }, 300);
-    }
-  };
+  // Usar las mismas opciones para todas las secciones (maderas)
+  const woodOptions = mockCatalog.options.cocina.alacenas.superior;
 
   return (
     <motion.div
@@ -110,84 +50,71 @@ export function KitchenPage({ onNext }: KitchenPageProps) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-lg text-gray-600 max-w-2xl mx-auto mb-4"
+          className="text-lg text-gray-600 max-w-2xl mx-auto"
         >
-          Selecciona los acabados y materiales para tu cocina. Cada elemento puede ser personalizado individualmente.
+          Selecciona los acabados para cada elemento de tu cocina
         </motion.p>
-        
-        <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
-          <span>Progreso:</span>
-          <div className="flex items-center space-x-1">
-            <span className="font-semibold text-corporate-600">{completedSections}</span>
-            <span>/</span>
-            <span>{totalSections}</span>
-          </div>
-          <div className="w-24 bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-corporate-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(completedSections / totalSections) * 100}%` }}
-            />
-          </div>
-        </div>
       </div>
 
       <div className="space-y-12">
-        {kitchenSections.map((section, sectionIndex) => {
-          const options = getOptionsForSection(section.options);
-          
-          return (
-            <motion.div
-              key={section.key}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + sectionIndex * 0.1 }}
-              className="bg-white rounded-xl shadow-lg p-6"
-              data-section
-            >
-              <div className="flex items-center mb-6">
-                <span className="text-2xl mr-3">{section.icon}</span>
-                <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
-                {state.cocina[section.key] && (
-                  <span className="ml-auto text-corporate-600 font-medium">
-                    ✓ {state.cocina[section.key]?.name}
-                  </span>
-                )}
-              </div>
-              
-              <HorizontalOptionGrid
-                options={options}
-                selectedOption={state.cocina[section.key]}
-                onSelect={(opt) => handleOptionSelect(section.key, opt, sectionIndex)}
-                sectionIndex={sectionIndex}
-              />
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className="text-center mt-8 space-y-4">
-        {isComplete && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={handleContinue}
-            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-          >
-            Continuar a Baños
-          </motion.button>
-        )}
-
-        {!isComplete && (
+        {kitchenSections.map((section, sectionIndex) => (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            key={section.key}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-gray-600"
+            transition={{ delay: 0.4 + sectionIndex * 0.1 }}
+            className="bg-white rounded-xl shadow-lg p-6"
           >
-            <p>Completa todas las secciones para continuar</p>
-            <p className="text-sm">({totalSections - completedSections} secciones restantes)</p>
+            <div className="flex items-center mb-6">
+              <span className="text-2xl mr-3">{section.icon}</span>
+              <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
+              {state.cocina[section.key] && (
+                <span className="ml-auto text-blue-600 font-medium">
+                  ✓ {state.cocina[section.key]?.name}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {woodOptions.map((option) => (
+                <OptionCard
+                  key={option.id}
+                  option={option}
+                  isSelected={state.cocina[section.key]?.id === option.id}
+                  onSelect={() => handleOptionSelect(section.key, option)}
+                />
+              ))}
+            </div>
           </motion.div>
-        )}
+        ))}
       </div>
+
+      {isComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mt-8 p-6 bg-green-50 border-2 border-green-200 rounded-lg"
+        >
+          <p className="text-lg font-semibold text-green-800">
+            ✓ Todos los elementos de cocina seleccionados
+          </p>
+          <p className="text-sm text-green-600 mt-2">
+          
+          </p>
+        </motion.div>
+      )}
+
+      {!isComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mt-8"
+        >
+          <p className="text-gray-600">
+            Selecciona acabados para todos los elementos ({kitchenSections.filter(s => state.cocina[s.key]).length}/{kitchenSections.length} completados)
+          </p>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

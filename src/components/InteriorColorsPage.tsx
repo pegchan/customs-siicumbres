@@ -1,44 +1,38 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
 import { mockCatalog } from '../data/mockData';
-import { HorizontalOptionGrid } from './HorizontalOptionGrid';
-import { useAutoScroll } from '../hooks/useAutoScroll';
-import type { CustomizationOption, CustomizationState } from '../types';
+import { OptionCard } from './OptionCard';
+import type { CustomizationOption } from '../types';
 
 interface InteriorColorsPageProps {
   onNext: () => void;
 }
 
+type InteriorKey = 'sala' | 'comedor' | 'recamara1' | 'recamara2' | 'recamara3' | 'escaleras';
+
 const interiorSections = [
-  { key: 'sala' as keyof CustomizationState['interiores'], title: 'Sala', icon: '🛍️' },
-  { key: 'comedor' as keyof CustomizationState['interiores'], title: 'Comedor', icon: '🍽️' },
-  { key: 'recamara1' as keyof CustomizationState['interiores'], title: 'Recámara Principal', icon: '🛏️' },
-  { key: 'recamara2' as keyof CustomizationState['interiores'], title: 'Recámara 2', icon: '🛏️' },
-  { key: 'recamara3' as keyof CustomizationState['interiores'], title: 'Recámara 3', icon: '🛏️' },
-  { key: 'escaleras' as keyof CustomizationState['interiores'], title: 'Escaleras', icon: '🪜' },
+  { key: 'sala' as InteriorKey, title: 'Sala', icon: '🛋️' },
+  { key: 'comedor' as InteriorKey, title: 'Comedor', icon: '🍽️' },
+  { key: 'recamara1' as InteriorKey, title: 'Recámara Principal', icon: '🛏️' },
+  { key: 'recamara2' as InteriorKey, title: 'Recámara 2', icon: '🛏️' },
+  { key: 'recamara3' as InteriorKey, title: 'Recámara 3', icon: '🛏️' },
+  { key: 'escaleras' as InteriorKey, title: 'Escaleras', icon: '🪜' },
 ];
 
 export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
   const { state, setInteriorColor } = useCustomization();
-  const { scrollToNextSection, scrollToTop } = useAutoScroll();
 
-  const handleOptionSelect = (section: keyof CustomizationState['interiores'], option: CustomizationOption, sectionIndex: number) => {
+  const handleOptionSelect = (section: InteriorKey, option: CustomizationOption) => {
     setInteriorColor(section, option);
-    
-    // Auto-scroll to next section after selection
-    scrollToNextSection(sectionIndex);
   };
 
-  const isComplete = interiorSections.every(section => 
+  const isComplete = interiorSections.every(section =>
     state.interiores[section.key] !== null
   );
 
   const handleContinue = () => {
     if (isComplete) {
-      scrollToTop();
-      setTimeout(() => {
-        onNext();
-      }, 300); // Small delay for smooth transition
+      onNext();
     }
   };
 
@@ -82,18 +76,22 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
               <span className="text-2xl mr-3">{section.icon}</span>
               <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
               {state.interiores[section.key] && (
-                <span className="ml-auto text-corporate-600 font-medium">
+                <span className="ml-auto text-blue-600 font-medium">
                   ✓ {state.interiores[section.key]?.name}
                 </span>
               )}
             </div>
             
-            <HorizontalOptionGrid
-              options={mockCatalog.options.interiores.colores.sala}
-              selectedOption={state.interiores[section.key]}
-              onSelect={(opt) => handleOptionSelect(section.key, opt, sectionIndex)}
-              sectionIndex={sectionIndex}
-            />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {mockCatalog.options.interiores.colores.sala.map((option) => (
+                <OptionCard
+                  key={option.id}
+                  option={option}
+                  isSelected={state.interiores[section.key]?.id === option.id}
+                  onSelect={() => handleOptionSelect(section.key, option)}
+                />
+              ))}
+            </div>
           </motion.div>
         ))}
       </div>
@@ -106,7 +104,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
         >
           <button
             onClick={handleContinue}
-            className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
           >
             Continuar a Cocina
           </button>
@@ -120,7 +118,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
           className="text-center mt-8"
         >
           <p className="text-gray-600">
-            Selecciona colores para todas las áreas para continuar
+            Selecciona colores para todas las áreas ({interiorSections.filter(s => state.interiores[s.key]).length}/{interiorSections.length} completadas)
           </p>
         </motion.div>
       )}

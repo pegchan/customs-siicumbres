@@ -1,14 +1,32 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import type { ReactNode } from 'react';
-import type { CustomizationState, CustomizationOption, HouseModel } from '../types';
+import type { CustomizationOption, HouseModel } from '../types';
 
-type CustomizationAction = 
+interface CustomizationState {
+  selectedModel: HouseModel | null;
+  interiores: {
+    sala: CustomizationOption | null;
+    comedor: CustomizationOption | null;
+    recamara1: CustomizationOption | null;
+    recamara2: CustomizationOption | null;
+    recamara3: CustomizationOption | null;
+    escaleras: CustomizationOption | null;
+  };
+  cocina: {
+    alacenaSuperior: CustomizationOption | null;
+    alacenaInferior: CustomizationOption | null;
+    alacenaBarraL: CustomizationOption | null;
+    alacenaExtra: CustomizationOption | null;
+    cubierta: CustomizationOption | null;
+    backsplash: CustomizationOption | null;
+    tarja: CustomizationOption | null;
+  };
+}
+
+type CustomizationAction =
   | { type: 'SET_MODEL'; payload: HouseModel }
   | { type: 'SET_INTERIOR_COLOR'; category: keyof CustomizationState['interiores']; payload: CustomizationOption }
   | { type: 'SET_KITCHEN_OPTION'; category: keyof CustomizationState['cocina']; payload: CustomizationOption }
-  | { type: 'SET_BATHROOM_OPTION'; category: keyof CustomizationState['banos']; payload: CustomizationOption }
-  | { type: 'SET_CLOSET_OPTION'; category: keyof CustomizationState['closets']; payload: CustomizationOption }
-  | { type: 'SET_EXTRA_OPTION'; category: string; payload: CustomizationOption }
   | { type: 'RESET_CUSTOMIZATION' };
 
 const initialState: CustomizationState = {
@@ -30,38 +48,13 @@ const initialState: CustomizationState = {
     backsplash: null,
     tarja: null,
   },
-  banos: {
-    muebleBanoA: null,
-    muebleBanoB: null,
-    muebleBanoC: null,
-    colorMueble: null,
-    acabadoCanceles: null,
-  },
-  closets: {
-    recamara1: null,
-    recamara2: null,
-    recamara3: null,
-    muebleBajoEscalera: null,
-    puertasMarcoEscalera: null,
-  },
-  extras: {
-    colorFachada: null,
-    minisplit: null,
-    protecciones: null,
-    paneles: null,
-    patio: {
-      estilo: null,
-      domo: null,
-    },
-    reflejante: null,
-  },
 };
 
 function customizationReducer(state: CustomizationState, action: CustomizationAction): CustomizationState {
   switch (action.type) {
     case 'SET_MODEL':
       return { ...state, selectedModel: action.payload };
-    
+
     case 'SET_INTERIOR_COLOR':
       return {
         ...state,
@@ -70,7 +63,7 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
+
     case 'SET_KITCHEN_OPTION':
       return {
         ...state,
@@ -79,28 +72,10 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
-    case 'SET_BATHROOM_OPTION':
-      return {
-        ...state,
-        banos: {
-          ...state.banos,
-          [action.category]: action.payload,
-        },
-      };
-    
-    case 'SET_CLOSET_OPTION':
-      return {
-        ...state,
-        closets: {
-          ...state.closets,
-          [action.category]: action.payload,
-        },
-      };
-    
+
     case 'RESET_CUSTOMIZATION':
       return initialState;
-    
+
     default:
       return state;
   }
@@ -112,8 +87,6 @@ interface CustomizationContextType {
   setModel: (model: HouseModel) => void;
   setInteriorColor: (category: keyof CustomizationState['interiores'], option: CustomizationOption) => void;
   setKitchenOption: (category: keyof CustomizationState['cocina'], option: CustomizationOption) => void;
-  setBathroomOption: (category: keyof CustomizationState['banos'], option: CustomizationOption) => void;
-  setClosetOption: (category: keyof CustomizationState['closets'], option: CustomizationOption) => void;
   resetCustomization: () => void;
 }
 
@@ -134,14 +107,6 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_KITCHEN_OPTION', category, payload: option });
   };
 
-  const setBathroomOption = (category: keyof CustomizationState['banos'], option: CustomizationOption) => {
-    dispatch({ type: 'SET_BATHROOM_OPTION', category, payload: option });
-  };
-
-  const setClosetOption = (category: keyof CustomizationState['closets'], option: CustomizationOption) => {
-    dispatch({ type: 'SET_CLOSET_OPTION', category, payload: option });
-  };
-
   const resetCustomization = () => {
     dispatch({ type: 'RESET_CUSTOMIZATION' });
   };
@@ -153,8 +118,6 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
       setModel,
       setInteriorColor,
       setKitchenOption,
-      setBathroomOption,
-      setClosetOption,
       resetCustomization,
     }}>
       {children}
