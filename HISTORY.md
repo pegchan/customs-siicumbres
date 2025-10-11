@@ -211,6 +211,71 @@ CustomizationLayout (principal)
 - **Funcionalidades principales**: 8 (6 pasos + preview + firma)
 - **Tiempo de desarrollo**: Iterativo con refactorizaciones y mejoras UX
 
+## Fase 8: Segregación de Funcionalidades en Ramas Git
+
+### **Objetivo: Branches Progresivos por Funcionalidad**
+Creación de ramas temáticas que muestran el desarrollo incremental del proyecto, desde funcionalidad básica hasta el sistema completo.
+
+#### **Estrategia de Branches**
+- ✅ **feature/01-base-setup**: Configuración inicial + selección de modelo únicamente
+- ✅ **feature/02-interior-colors**: Agregar personalización de colores de interiores (6 espacios)
+- ✅ **feature/03-kitchen**: Agregar personalización de cocina (7 elementos)
+- ✅ **feature/04-bathrooms-closets**: Agregar baños (5 elementos) y closets (5 elementos)
+- 🔄 **feature/05-extras**: Agregar extras y accesorios (pendiente)
+- 🔄 **feature/06-summary-panel**: Agregar panel de resumen lateral (pendiente)
+- 🔄 **feature/07-admin-config**: Agregar configuración administrativa (pendiente)
+- 🔄 **feature/08-digital-signature**: Agregar sistema de firma digital (pendiente)
+- 🔄 **feature/09-complete**: Sistema completo con todas las funcionalidades (pendiente)
+
+#### **Implementación de feature/01-base-setup**
+- ✅ **Simplificación de CustomizationContext**: Solo manejo de selectedModel
+- ✅ **CustomizationLayout simplificado**: Solo paso de modelo sin stepper
+- ✅ **ModelSelectionPage**: Versión sin useAutoScroll, usando window.scrollTo()
+- ✅ **OptionCard simplificado**: Sin ImageModal, sin useSubcategoryConfig
+- ✅ **Eliminación de componentes avanzados**: InteriorColorsPage, KitchenPage, etc.
+- ✅ **Eliminación de servicios**: pdfGeneratorService, subcategoryConfigService
+- ✅ **Eliminación de hooks**: useAutoScroll, useSubcategoryConfig
+
+#### **Implementación de feature/02-interior-colors**
+- ✅ **CustomizationContext actualizado**: Agregado estado de interiores
+- ✅ **CustomizationLayout con 2 pasos**: Model → Interiores
+- ✅ **InteriorColorsPage simplificada**: Sin HorizontalOptionGrid, usando grid normal
+- ✅ **Navegación básica**: Botón "Continuar a Cocina" al completar
+- ✅ **Validación por sección**: Contador de progreso (X/6 completados)
+
+#### **Implementación de feature/03-kitchen**
+- ✅ **CustomizationContext actualizado**: Agregado estado de cocina
+- ✅ **CustomizationLayout con 3 pasos**: Model → Interiores → Cocina
+- ✅ **KitchenPage simplificada**: 7 secciones de cocina sin funcionalidades avanzadas
+- ✅ **Navegación fluida**: Botón "Continuar a Baños" al completar
+- ✅ **Reutilización de componentes**: OptionCard simplificado funciona para todas las secciones
+
+#### **Implementación de feature/04-bathrooms-closets**
+- ✅ **CustomizationContext completo**: Estado para banos y closets agregados
+- ✅ **CustomizationLayout con 5 pasos**: Model → Interiores → Cocina → Baños → Closets
+- ✅ **BathroomPage implementada**: 5 secciones de baños con navegación
+- ✅ **ClosetsPage implementada**: 5 secciones de closets con mensaje de completado
+- ✅ **Compilación TypeScript**: Todos los errores corregidos
+- ✅ **Archivos simplificados**: Todas las páginas sin dependencias avanzadas (hooks/modals)
+
+#### **Desafíos Técnicos Encontrados**
+1. **Reversión automática de archivos**: Los archivos se revertían a su versión completa original
+   - Solución: Usar tool Write para sobrescribir completamente en lugar de Edit
+2. **Errores recurrentes de importaciones**: useAutoScroll, ImageModal, useSubcategoryConfig
+   - Solución: Reescribir archivos sin estas dependencias, usar window.scrollTo() nativo
+3. **TypeScript strict mode**: Errores por imports no utilizados
+   - Solución: Remover todos los imports innecesarios en cada archivo
+4. **Flujo de commits manual**: Usuario prefiere hacer commits manualmente en cada rama
+   - Solución: Crear ramas vacías y dejar al usuario hacer los commits
+
+#### **Patrón de Simplificación Establecido**
+Para cada rama incremental:
+1. **Actualizar CustomizationContext**: Agregar solo el estado necesario para esa funcionalidad
+2. **Actualizar CustomizationLayout**: Agregar el paso correspondiente al stepper
+3. **Crear/Actualizar páginas**: Versiones simplificadas sin funcionalidades avanzadas
+4. **Verificar compilación**: `npx tsc --noEmit` para asegurar que no hay errores
+5. **Mantener simplicidad**: No agregar hooks o servicios hasta las ramas posteriores
+
 ---
 
-*Última actualización: 30 de septiembre, 2025*
+*Última actualización: 1 de octubre, 2025*
