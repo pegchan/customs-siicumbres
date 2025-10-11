@@ -3,21 +3,14 @@ import { useCustomization } from '../context/CustomizationContext';
 
 interface SummaryPageProps {
   onNext?: () => void;
-  onShowPreview?: () => void;
 }
 
-export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
+export function SummaryPage({ onNext }: SummaryPageProps) {
   const { state, resetCustomization } = useCustomization();
 
   const handleStartOver = () => {
     resetCustomization();
     if (onNext) onNext();
-  };
-
-  const handleGenerateFormat = () => {
-    if (onShowPreview) {
-      onShowPreview();
-    }
   };
 
   const getCompletionStats = () => {
@@ -48,6 +41,14 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
     totalSelections += closetKeys.length;
     completedSelections += Object.values(state.closets).filter(Boolean).length;
 
+    // Count extras (excluding arrays and nested objects)
+    if (state.extras.colorFachada) completedSelections++;
+    totalSelections++;
+    if (state.extras.minisplit) completedSelections++;
+    totalSelections++;
+    if (state.extras.paneles) completedSelections++;
+    totalSelections++;
+
     return { totalSelections, completedSelections };
   };
 
@@ -76,7 +77,7 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
           transition={{ delay: 0.3 }}
           className="text-lg text-gray-600 max-w-2xl mx-auto"
         >
-          Revisa todas tus selecciones antes de generar el formato final de personalización.
+          Revisa todas tus selecciones de personalización. Aquí puedes ver un resumen completo de todas tus elecciones.
         </motion.p>
       </div>
 
@@ -246,7 +247,7 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
             <div className="space-y-3">
               {Object.entries(state.closets).map(([item, selection]) => {
                 if (!selection) return null;
-                
+
                 const itemNames: Record<string, string> = {
                   recamara1: 'Closet Recámara 1',
                   recamara2: 'Closet Recámara 2',
@@ -254,7 +255,7 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
                   muebleBajoEscalera: 'Mueble Bajo Escalera',
                   puertasMarcoEscalera: 'Puertas Marco Escalera',
                 };
-                
+
                 return (
                   <div key={item} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                     <span className="text-gray-600">{itemNames[item]}</span>
@@ -262,6 +263,41 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
                   </div>
                 );
               })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Extras */}
+        {(state.extras.colorFachada || state.extras.minisplit || state.extras.paneles) && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+            className="bg-white rounded-xl shadow-lg p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="mr-2">✨</span>
+              Extras
+            </h3>
+            <div className="space-y-3">
+              {state.extras.colorFachada && (
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Color de Fachada</span>
+                  <span className="font-medium text-gray-900">{state.extras.colorFachada.name}</span>
+                </div>
+              )}
+              {state.extras.minisplit && (
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-600">Minisplit</span>
+                  <span className="font-medium text-gray-900">{state.extras.minisplit.name}</span>
+                </div>
+              )}
+              {state.extras.paneles && (
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                  <span className="text-gray-600">Paneles Fotovoltaicos</span>
+                  <span className="font-medium text-gray-900">{state.extras.paneles.name}</span>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -275,17 +311,11 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
         className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
       >
         <button
-          onClick={handleGenerateFormat}
+          disabled={true}
+          onClick={handleStartOver}
           className="bg-corporate-600 hover:bg-corporate-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
         >
-          📄 Previsualizar y Generar PDF
-        </button>
-        
-        <button
-          onClick={handleStartOver}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-        >
-          🔄 Comenzar de Nuevo
+          Ver resumen
         </button>
       </motion.div>
     </motion.div>

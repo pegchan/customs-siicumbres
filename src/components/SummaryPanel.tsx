@@ -209,13 +209,13 @@ export function SummaryPanel() {
           )}
         </div>
 
-        {totalSelections > 0 && (
+        {/* {totalSelections > 0 && (
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="text-center text-corporate-600 text-sm">
               <p>💡 Ve al paso de <strong>Resumen</strong> para previsualizar y generar tu PDF personalizado</p>
             </div>
           </div>
-        )}
+        )} */}
 
         {totalSelections === 0 && (
           <div className="text-center text-corporate-500 mt-8">

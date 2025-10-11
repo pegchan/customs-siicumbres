@@ -10,17 +10,13 @@ import { BathroomPage } from './BathroomPage';
 import { ClosetsPage } from './ClosetsPage';
 import { ExtrasPage } from './ExtrasPage';
 import { SummaryPage } from './SummaryPage';
-import { DocumentPreviewPage } from './DocumentPreviewPage';
 import { SummaryPanel } from './SummaryPanel';
 import { SubcategoryConfigManager } from './SubcategoryConfigManager';
-import { pdfGeneratorService } from '../services/pdfGeneratorService';
-import type { SignatureData } from './DigitalSignature';
 
 export function CustomizationLayout() {
   const [currentStep, setCurrentStep] = useState<CustomizationStep>('model');
   const [completedSteps, setCompletedSteps] = useState<CustomizationStep[]>([]);
   const [showConfigManager, setShowConfigManager] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const { state } = useCustomization();
 
   const handleStepComplete = (step: CustomizationStep) => {
@@ -31,7 +27,7 @@ export function CustomizationLayout() {
 
   const handleNext = () => {
     handleStepComplete(currentStep);
-    
+
     const steps: CustomizationStep[] = ['model', 'interiores', 'cocina', 'banos', 'closets', 'extras', 'resumen'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
@@ -41,24 +37,6 @@ export function CustomizationLayout() {
 
   const handleStepClick = (step: CustomizationStep) => {
     setCurrentStep(step);
-    setShowPreview(false); // Salir del preview al cambiar de paso
-  };
-
-  const handleShowPreview = () => {
-    setShowPreview(true);
-  };
-
-  const handleBackFromPreview = () => {
-    setShowPreview(false);
-  };
-
-  const handleGeneratePDF = async (signatureData?: SignatureData) => {
-    try {
-      await pdfGeneratorService.generatePDF(state, signatureData);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error al generar el PDF. Por favor intenta de nuevo.');
-    }
   };
 
   const handleBackToStart = () => {
@@ -81,21 +59,11 @@ export function CustomizationLayout() {
       case 'extras':
         return <ExtrasPage onNext={handleNext} />;
       case 'resumen':
-        return <SummaryPage onNext={handleBackToStart} onShowPreview={handleShowPreview} />;
+        return <SummaryPage onNext={handleBackToStart} />;
       default:
         return <ModelSelectionPage onNext={handleNext} />;
     }
   };
-
-  // Si estamos en modo preview, mostrar la página de preview
-  if (showPreview) {
-    return (
-      <DocumentPreviewPage
-        onBack={handleBackFromPreview}
-        onGeneratePDF={handleGeneratePDF}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-transparent">
