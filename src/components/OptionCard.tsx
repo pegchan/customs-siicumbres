@@ -42,11 +42,11 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
           <div className="text-3xl mb-2">🎨</div>
           <div className="text-xs font-medium px-2">{option.name}</div>
         </div>
-        
+
         {/* Overlay para imagen real cuando esté disponible */}
         {option.image && (
-          <img 
-            src={option.image} 
+          <img
+            src={option.image}
             alt={option.name}
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {
@@ -55,14 +55,14 @@ export function OptionCard({ option, isSelected, onSelect }: OptionCardProps) {
             }}
           />
         )}
-        
+
         {/* Botón de zoom */}
         <button
           onClick={handleZoomClick}
           className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-lg p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           aria-label="Ampliar imagen"
         >
-          <svg 
+          <svg
             className="w-4 h-4 text-corporate-700"
             fill="none"
             stroke="currentColor"

@@ -77,7 +77,6 @@ export function ImageModal({ isOpen, onClose, option }: ImageModalProps) {
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
-                      // Show placeholder when image fails
                       const placeholder = target.nextElementSibling;
                       if (placeholder) {
                         placeholder.classList.remove('hidden');
@@ -85,7 +84,7 @@ export function ImageModal({ isOpen, onClose, option }: ImageModalProps) {
                     }}
                   />
                 ) : null}
-                
+
                 {/* Placeholder */}
                 <div className={`absolute inset-0 flex flex-col items-center justify-center text-gray-400 ${option.image ? 'hidden' : ''}`}>
                   <div className="text-6xl mb-4">🖼️</div>
