@@ -276,6 +276,200 @@ Para cada rama incremental:
 4. **Verificar compilación**: `npx tsc --noEmit` para asegurar que no hay errores
 5. **Mantener simplicidad**: No agregar hooks o servicios hasta las ramas posteriores
 
+## Fase 9: Restauración y Simplificación - Rama customs-complete-basics
+
+### **Objetivo: Sistema Completo Sin PDF**
+Restauración de todas las funcionalidades desde commit anterior, eliminando únicamente la previsualización y generación de PDF para mantener el sistema enfocado en la personalización de opciones.
+
+#### **Contexto de la Rama**
+- **Rama**: `customs-complete-basics`
+- **Fecha**: 13 de octubre, 2025
+- **Objetivo**: Sistema completo de personalización (7 pasos) sin funcionalidades de PDF
+- **Estado base**: Commit `d632bad` (implementación firma digital)
+
+#### **Archivos Restaurados** ✅
+1. ✅ **CustomizationStepper.tsx**: Navegación completa entre 7 pasos
+2. ✅ **ExtrasPage.tsx**: Página de extras y accesorios
+3. ✅ **SummaryPage.tsx**: Página de resumen final
+4. ✅ **SummaryPanel.tsx**: Panel lateral de resumen en tiempo real
+5. ✅ **HorizontalOptionGrid.tsx**: Grid inteligente con scroll horizontal
+6. ✅ **ImageModal.tsx**: Modal de zoom de imágenes
+7. ✅ **SubcategoryConfigManager.tsx**: Panel administrativo de configuración
+8. ✅ **useAutoScroll.ts**: Hook de scroll automático
+9. ✅ **useSubcategoryConfig.ts**: Hook de configuración dinámica
+10. ✅ **subcategoryConfigService.ts**: Servicio singleton de configuración
+
+#### **Archivos Presentes pero NO Utilizados** ⚠️
+- `DocumentPreviewPage.tsx` - Existe pero no está importado
+- `DigitalSignature.tsx` - Existe pero no está importado
+- `pdfGeneratorService.ts` - Existe pero no está importado
+
+> **Nota**: Estos archivos permanecen en el proyecto por referencia histórica pero no son utilizados por la aplicación actual.
+
+#### **Modificaciones Realizadas** 🔧
+
+**CustomizationLayout.tsx**:
+```typescript
+// ANTES
+import { DocumentPreviewPage } from './DocumentPreviewPage';
+import { pdfGeneratorService } from '../services/pdfGeneratorService';
+import type { SignatureData } from './DigitalSignature';
+const [showPreview, setShowPreview] = useState(false);
+
+// DESPUÉS
+// Imports eliminados
+// Estado showPreview eliminado
+// Handlers de preview y PDF eliminados
+```
+
+**SummaryPage.tsx**:
+```typescript
+// ANTES
+interface SummaryPageProps {
+  onNext?: () => void;
+  onShowPreview?: () => void;
+}
+<button onClick={handleGenerateFormat}>
+  📄 Previsualizar y Generar PDF
+</button>
+
+// DESPUÉS
+interface SummaryPageProps {
+  onNext?: () => void;
+}
+<button onClick={handleStartOver}>
+  🔄 Comenzar de Nuevo
+</button>
+
+// AGREGADO
+// Sección de Extras en el resumen (faltaba)
+// Cálculo de progreso actualizado para incluir extras
+```
+
+#### **Funcionalidades del Sistema Completo** 📋
+
+**7 Pasos de Personalización**:
+1. ✅ **Modelo** - Selección de casa (6 modelos)
+2. ✅ **Interiores** - Colores de 6 espacios (sala, comedor, 3 recámaras, escaleras)
+3. ✅ **Cocina** - 7 elementos (alacenas, cubiertas, backsplash, tarja)
+4. ✅ **Baños** - 5 elementos (3 muebles, color, canceles)
+5. ✅ **Closets** - 5 elementos (3 recámaras, bajo escalera, puertas)
+6. ✅ **Extras** - Accesorios (fachada, minisplit, paneles)
+7. ✅ **Resumen** - Vista consolidada de todas las selecciones
+
+**UX/UI Features Activas**:
+- ✅ Auto-scroll inteligente entre secciones
+- ✅ Scroll horizontal dinámico para >6 opciones
+- ✅ Zoom de imágenes con modal lightbox
+- ✅ Panel de resumen lateral en tiempo real
+- ✅ Configuración administrativa de subcategorías opcionales
+- ✅ Validación de progreso por paso
+- ✅ Animaciones fluidas con Framer Motion
+- ✅ Indicadores visuales de completado
+- ✅ Navegación entre pasos con stepper
+
+**Arquitectura Técnica**:
+- ✅ Context API + useReducer para estado global
+- ✅ Hooks personalizados (useAutoScroll, useSubcategoryConfig)
+- ✅ Singleton pattern (SubcategoryConfigService)
+- ✅ Componentes reutilizables (OptionCard, HorizontalOptionGrid)
+- ✅ TypeScript strict mode sin errores
+- ✅ ESLint configurado y pasando
+
+#### **Verificaciones de Calidad** ✅
+
+```bash
+✅ TypeScript Compilation: npx tsc --noEmit
+   → Sin errores de compilación
+
+✅ ESLint: npm run lint
+   → Sin errores de linting
+
+✅ Production Build: npm run build
+   → Build exitoso (365.71 kB gzipped: 109.69 kB)
+
+✅ Dependencies: npm install --force
+   → 282 packages instalados correctamente
+```
+
+#### **Comandos de Desarrollo**
+
+```bash
+# Desarrollo
+npm run dev            # Servidor de desarrollo con HMR
+
+# Producción
+npm run build          # Build optimizado para producción
+npm run preview        # Preview del build de producción
+
+# Calidad de código
+npm run lint           # Ejecutar ESLint
+npx tsc --noEmit      # Verificar tipos TypeScript
+```
+
+#### **Estructura de Datos - Resumen**
+
+**Estado Global (CustomizationState)**:
+```typescript
+{
+  selectedModel: HouseModel | null,
+  interiores: { sala, comedor, recamara1, recamara2, recamara3, escaleras },
+  cocina: { alacenaSuperior, alacenaInferior, alacenaBarraL, alacenaExtra, cubierta, backsplash, tarja },
+  banos: { muebleBanoA, muebleBanoB, muebleBanoC, colorMueble, acabadoCanceles },
+  closets: { recamara1, recamara2, recamara3, muebleBajoEscalera, puertasMarcoEscalera },
+  extras: { colorFachada, minisplit, paneles, protecciones[], patio: { estilo, domo }, reflejante[] }
+}
+```
+
+**Métricas de Personalización**:
+- Total de elementos configurables: ~33 elementos
+- Elementos obligatorios: ~28
+- Elementos opcionales: ~5 (configurables vía admin)
+- Progreso calculado dinámicamente en tiempo real
+
+#### **Próximos Pasos Potenciales**
+
+**Para esta rama (customs-complete-basics)**:
+- [ ] Eliminar físicamente archivos no utilizados (DocumentPreview, DigitalSignature, pdfGenerator)
+- [ ] Optimizar bundle size (considerar code splitting)
+- [ ] Agregar lazy loading de imágenes
+- [ ] Implementar persistencia de estado (localStorage)
+
+**Para ramas futuras**:
+- [ ] **customs-complete-with-pdf**: Rama con sistema completo incluyendo PDF
+- [ ] **customs-backend-integration**: Integración con API real
+- [ ] **customs-authentication**: Sistema de autenticación de usuarios
+
+#### **Notas Técnicas Importantes**
+
+1. **Problema de Rollup en WSL**:
+   - Error: `Cannot find module @rollup/rollup-linux-x64-gnu`
+   - Solución: `npm install --force` para reinstalar dependencias nativas
+
+2. **SummaryPage - Botón deshabilitado**:
+   - Usuario agregó `disabled={true}` al botón "Ver resumen"
+   - Texto cambiado de "Comenzar de Nuevo" a "Ver resumen"
+   - Considerar restaurar funcionalidad original o eliminar botón
+
+3. **Extras en Resumen**:
+   - Se agregó la sección de Extras que faltaba en el resumen
+   - Actualizado el cálculo de progreso para incluir extras
+   - Solo muestra: colorFachada, minisplit, paneles (principales)
+
+#### **Comparación con Versión Completa**
+
+| Feature | customs-complete-basics | d632bad (completo) |
+|---------|------------------------|---------------------|
+| Pasos de personalización | 7 ✅ | 7 ✅ |
+| Panel de resumen | ✅ | ✅ |
+| Auto-scroll | ✅ | ✅ |
+| Zoom imágenes | ✅ | ✅ |
+| Config admin | ✅ | ✅ |
+| Preview documento | ❌ | ✅ |
+| Firma digital | ❌ | ✅ |
+| Generación PDF | ❌ | ✅ |
+| Bundle size | 365 KB | ~420 KB (estimado) |
+
 ---
 
-*Última actualización: 1 de octubre, 2025*
+*Última actualización: 13 de octubre, 2025*

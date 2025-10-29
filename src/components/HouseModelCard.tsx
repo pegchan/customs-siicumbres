@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { ImageWithFallback } from './ImageWithFallback';
 import type { HouseModel } from '../types';
 
 interface HouseModelCardProps {
@@ -14,18 +15,21 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
       whileTap={{ scale: 0.98 }}
       className={`
         relative cursor-pointer rounded-xl overflow-hidden shadow-lg transition-all duration-300
-        ${isSelected 
-          ? 'ring-4 ring-corporate-500 shadow-xl' 
+        ${isSelected
+          ? 'ring-4 ring-corporate-500 shadow-xl'
           : 'hover:shadow-xl border border-gray-200'
         }
       `}
       onClick={() => onSelect(model)}
     >
-      <div className="aspect-video bg-gray-100 flex items-center justify-center">
-        <div className="text-gray-400 text-center">
-          <div className="text-4xl mb-2">🏠</div>
-          <div className="text-sm font-medium">{model.name}</div>
-        </div>
+      <div className="aspect-video bg-gray-100 overflow-hidden">
+        <ImageWithFallback
+          src={model.image}
+          alt={model.name}
+          fallbackType="text"
+          fallbackText={model.name}
+          className="w-full h-full object-cover"
+        />
       </div>
       
       <div className="p-4">

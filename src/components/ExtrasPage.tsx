@@ -1,49 +1,48 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
-import { mockCatalog } from '../data/mockData';
 import { HorizontalOptionGrid } from './HorizontalOptionGrid';
 import { useAutoScroll } from '../hooks/useAutoScroll';
-import type { CustomizationOption } from '../types';
+import type { CustomizationOption, CustomizationCatalog } from '../types';
 
 interface ExtrasPageProps {
   onNext: () => void;
 }
 
-const extraSections = [
+const getExtraSections = (catalog: CustomizationCatalog | null) => [
   {
     key: 'colorFachada',
     title: 'Color de Fachada',
     icon: '🏠',
-    options: mockCatalog.options.extras.fachadas,
+    options: catalog?.options.extras.fachadas || [],
     required: true
   },
   {
     key: 'minisplit',
     title: 'Minisplit',
     icon: '❄️',
-    options: mockCatalog.options.extras.minisplit,
+    options: catalog?.options.extras.minisplit || [],
     required: false
   },
   {
     key: 'paneles',
     title: 'Paneles Fotovoltaicos',
     icon: '☀️',
-    options: mockCatalog.options.extras.paneles,
+    options: catalog?.options.extras.paneles || [],
     required: false
   },
   {
     key: 'patioEstilo',
     title: 'Estilo de Patio',
     icon: '🌿',
-    options: mockCatalog.options.extras.patio.estilos,
+    options: catalog?.options.extras.patio.estilos || [],
     required: true
   },
   {
     key: 'patioDomo',
     title: 'Domo de Patio',
     icon: '🔆',
-    options: mockCatalog.options.extras.patio.domos,
+    options: catalog?.options.extras.patio.domos || [],
     required: false
   },
 ];
@@ -59,9 +58,12 @@ interface ExtrasState {
 }
 
 export function ExtrasPage({ onNext }: ExtrasPageProps) {
-  const { state } = useCustomization();
+  const { state, catalog } = useCustomization();
   const { scrollToNextSection, scrollToTop } = useAutoScroll();
-  
+
+  // Generate sections from catalog
+  const extraSections = getExtraSections(catalog);
+
   // Simplified state for extras - using local state since the context doesn't handle extras properly yet
   const [extrasState, setExtrasState] = React.useState<ExtrasState>({
     colorFachada: state.extras.colorFachada,
@@ -212,7 +214,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
           </div>
           
           <HorizontalOptionGrid
-            options={mockCatalog.options.extras.protecciones}
+            options={catalog?.options.extras.protecciones || []}
             selectedOptions={extrasState.protecciones}
             onSelect={(opt) => handleMultiOptionToggle('protecciones', opt)}
             sectionIndex={extraSections.length}
@@ -239,7 +241,7 @@ export function ExtrasPage({ onNext }: ExtrasPageProps) {
           </div>
           
           <HorizontalOptionGrid
-            options={mockCatalog.options.extras.reflejante}
+            options={catalog?.options.extras.reflejante || []}
             selectedOptions={extrasState.reflejante}
             onSelect={(opt) => handleMultiOptionToggle('reflejante', opt)}
             sectionIndex={extraSections.length + 1}

@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
-import { mockCatalog } from '../data/mockData';
 import { HorizontalOptionGrid } from './HorizontalOptionGrid';
 import { useAutoScroll } from '../hooks/useAutoScroll';
-import type { CustomizationOption, CustomizationState } from '../types';
+import type { CustomizationOption, CustomizationState, CustomizationCatalog } from '../types';
 
 interface BathroomPageProps {
   onNext: () => void;
@@ -42,19 +41,22 @@ const bathroomSections = [
   },
 ];
 
-function getOptionsForSection(optionsPath: string): CustomizationOption[] {
+function getOptionsForSection(catalog: CustomizationCatalog | null, optionsPath: string): CustomizationOption[] {
+  if (!catalog) return [];
+
   const paths = optionsPath.split('.');
-  let current: Record<string, unknown> = mockCatalog.options.banos;
-  
+  let current: any = catalog.options.banos;
+
   for (const path of paths) {
-    current = current[path] as Record<string, unknown>;
+    current = current[path];
+    if (!current) return [];
   }
-  
-  return (current as unknown as CustomizationOption[]) || [];
+
+  return (current as CustomizationOption[]) || [];
 }
 
 export function BathroomPage({ onNext }: BathroomPageProps) {
-  const { state, setBathroomOption } = useCustomization();
+  const { state, setBathroomOption, catalog } = useCustomization();
   const { scrollToNextSection, scrollToTop } = useAutoScroll();
 
   const handleOptionSelect = (section: keyof CustomizationState['banos'], option: CustomizationOption, sectionIndex: number) => {
@@ -121,8 +123,8 @@ export function BathroomPage({ onNext }: BathroomPageProps) {
 
       <div className="space-y-12">
         {bathroomSections.map((section, sectionIndex) => {
-          const options = getOptionsForSection(section.options);
-          
+          const options = getOptionsForSection(catalog, section.options);
+
           return (
             <motion.div
               key={section.key}

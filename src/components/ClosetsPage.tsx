@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
-import { mockCatalog } from '../data/mockData';
 import { HorizontalOptionGrid } from './HorizontalOptionGrid';
 import { useAutoScroll } from '../hooks/useAutoScroll';
-import type { CustomizationOption, CustomizationState } from '../types';
+import type { CustomizationOption, CustomizationState, CustomizationCatalog } from '../types';
 
 interface ClosetsPageProps {
   onNext: () => void;
@@ -42,13 +41,14 @@ const closetSections = [
   },
 ];
 
-function getOptionsForSection(optionsPath: string): CustomizationOption[] {
-  const current = (mockCatalog.options.closets as Record<string, CustomizationOption[]>)[optionsPath];
+function getOptionsForSection(catalog: CustomizationCatalog | null, optionsPath: string): CustomizationOption[] {
+  if (!catalog) return [];
+  const current = (catalog.options.closets as Record<string, CustomizationOption[]>)[optionsPath];
   return current || [];
 }
 
 export function ClosetsPage({ onNext }: ClosetsPageProps) {
-  const { state, setClosetOption } = useCustomization();
+  const { state, setClosetOption, catalog } = useCustomization();
   const { scrollToNextSection, scrollToTop } = useAutoScroll();
 
   const handleOptionSelect = (section: keyof CustomizationState['closets'], option: CustomizationOption, sectionIndex: number) => {
@@ -115,8 +115,8 @@ export function ClosetsPage({ onNext }: ClosetsPageProps) {
 
       <div className="space-y-12">
         {closetSections.map((section, sectionIndex) => {
-          const options = getOptionsForSection(section.options);
-          
+          const options = getOptionsForSection(catalog, section.options);
+
           return (
             <motion.div
               key={section.key}

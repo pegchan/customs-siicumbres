@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import type { CustomizationState, CustomizationOption, HouseModel } from '../types';
+import type { CustomizationState, CustomizationOption, HouseModel, CustomizationCatalog } from '../types';
+import { useCatalogLoader } from '../hooks/useCatalogLoader';
+import { transformBackendCatalog } from '../data/catalogTransformer';
 
 type CustomizationAction = 
   | { type: 'SET_MODEL'; payload: HouseModel }
@@ -14,6 +16,7 @@ type CustomizationAction =
 const initialState: CustomizationState = {
   selectedModel: null,
   interiores: {
+    // Colores y Maderas combinados
     sala: null,
     comedor: null,
     recamara1: null,
@@ -109,6 +112,7 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
 interface CustomizationContextType {
   state: CustomizationState;
   dispatch: React.Dispatch<CustomizationAction>;
+  catalog: CustomizationCatalog | null;
   setModel: (model: HouseModel) => void;
   setInteriorColor: (category: keyof CustomizationState['interiores'], option: CustomizationOption) => void;
   setKitchenOption: (category: keyof CustomizationState['cocina'], option: CustomizationOption) => void;
@@ -121,6 +125,15 @@ const CustomizationContext = createContext<CustomizationContextType | undefined>
 
 export function CustomizationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(customizationReducer, initialState);
+
+  // Cargar catálogo desde el backend
+  const { catalog: backendCatalog, loading, error, retry } = useCatalogLoader();
+
+  // Transformar catálogo cuando esté disponible
+  const catalog = useMemo(() => {
+    if (!backendCatalog) return null;
+    return transformBackendCatalog(backendCatalog);
+  }, [backendCatalog]);
 
   const setModel = (model: HouseModel) => {
     dispatch({ type: 'SET_MODEL', payload: model });
@@ -146,10 +159,54 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'RESET_CUSTOMIZATION' });
   };
 
+  // Mostrar loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-corporate-500 border-t-transparent mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Cargando catálogo...
+          </h2>
+          <p className="text-gray-600">
+            Preparando tus opciones de personalización
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md px-4">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Error al cargar el catálogo
+          </h2>
+          <p className="text-gray-600 mb-2">
+            {error.message || 'No se pudo conectar con el servidor'}
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            Verifica que el servidor esté en funcionamiento y vuelve a intentarlo.
+          </p>
+          <button
+            onClick={retry}
+            className="bg-corporate-500 hover:bg-corporate-600 text-white font-medium px-8 py-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+          >
+            Reintentar carga
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <CustomizationContext.Provider value={{
       state,
       dispatch,
+      catalog,
       setModel,
       setInteriorColor,
       setKitchenOption,

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
-import { houseModels } from '../data/mockData';
 import { HouseModelCard } from './HouseModelCard';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import type { HouseModel } from '../types';
@@ -10,8 +9,11 @@ interface ModelSelectionPageProps {
 }
 
 export function ModelSelectionPage({ onNext }: ModelSelectionPageProps) {
-  const { state, setModel } = useCustomization();
+  const { state, setModel, catalog } = useCustomization();
   const { scrollToTop } = useAutoScroll();
+
+  // Obtener modelos del catálogo del backend
+  const houseModels = catalog?.houseModels || [];
 
   const handleModelSelect = (model: HouseModel) => {
     setModel(model);

@@ -1,7 +1,7 @@
 export interface CustomizationOption {
   id: string;
   name: string;
-  image: string;
+  image?: string;
   category: string;
   subcategory?: string;
   price?: number;
@@ -11,7 +11,7 @@ export interface HouseModel {
   id: string;
   name: string;
   description: string;
-  image: string;
+  image?: string;
   floorPlans: {
     plantaBaja: string;
     plantaAlta?: string;
@@ -21,6 +21,7 @@ export interface HouseModel {
 export interface CustomizationState {
   selectedModel: HouseModel | null;
   interiores: {
+    // Colores y Maderas combinados (una sola opción por área)
     sala: CustomizationOption | null;
     comedor: CustomizationOption | null;
     recamara1: CustomizationOption | null;
@@ -68,14 +69,13 @@ export interface CustomizationCatalog {
   houseModels: HouseModel[];
   options: {
     interiores: {
-      colores: {
-        sala: CustomizationOption[];
-        comedor: CustomizationOption[];
-        recamara1: CustomizationOption[];
-        recamara2: CustomizationOption[];
-        recamara3: CustomizationOption[];
-        escaleras: CustomizationOption[];
-      };
+      // Colores y Maderas combinados por área
+      sala: CustomizationOption[];
+      comedor: CustomizationOption[];
+      recamara1: CustomizationOption[];
+      recamara2: CustomizationOption[];
+      recamara3: CustomizationOption[];
+      escaleras: CustomizationOption[];
     };
     cocina: {
       alacenas: {

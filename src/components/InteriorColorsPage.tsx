@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
-import { mockCatalog } from '../data/mockData';
 import { HorizontalOptionGrid } from './HorizontalOptionGrid';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import type { CustomizationOption, CustomizationState } from '../types';
@@ -9,27 +8,29 @@ interface InteriorColorsPageProps {
   onNext: () => void;
 }
 
-const interiorSections = [
-  { key: 'sala' as keyof CustomizationState['interiores'], title: 'Sala', icon: '🛍️' },
+// Secciones de interiores (colores y maderas combinados)
+const sections = [
+  { key: 'sala' as keyof CustomizationState['interiores'], title: 'Sala', icon: '🛋️' },
   { key: 'comedor' as keyof CustomizationState['interiores'], title: 'Comedor', icon: '🍽️' },
   { key: 'recamara1' as keyof CustomizationState['interiores'], title: 'Recámara Principal', icon: '🛏️' },
   { key: 'recamara2' as keyof CustomizationState['interiores'], title: 'Recámara 2', icon: '🛏️' },
   { key: 'recamara3' as keyof CustomizationState['interiores'], title: 'Recámara 3', icon: '🛏️' },
-  { key: 'escaleras' as keyof CustomizationState['interiores'], title: 'Escaleras', icon: '🪜' },
+  { key: 'escaleras' as keyof CustomizationState['interiores'], title: 'Estudio', icon: '📚' },
 ];
 
 export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
-  const { state, setInteriorColor } = useCustomization();
+  const { state, setInteriorColor, catalog } = useCustomization();
   const { scrollToNextSection, scrollToTop } = useAutoScroll();
 
   const handleOptionSelect = (section: keyof CustomizationState['interiores'], option: CustomizationOption, sectionIndex: number) => {
     setInteriorColor(section, option);
-    
+
     // Auto-scroll to next section after selection
     scrollToNextSection(sectionIndex);
   };
 
-  const isComplete = interiorSections.every(section => 
+  // Verificar si todas las secciones están completas
+  const isComplete = sections.every(section =>
     state.interiores[section.key] !== null
   );
 
@@ -64,12 +65,12 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
           transition={{ delay: 0.3 }}
           className="text-lg text-gray-600 max-w-2xl mx-auto"
         >
-          Selecciona los colores para cada área de tu hogar. Puedes elegir el mismo color para todas las habitaciones o personalizar cada una.
+          Selecciona el color o acabado de madera para cada área de tu hogar.
         </motion.p>
       </div>
 
-      <div className="space-y-12">
-        {interiorSections.map((section, sectionIndex) => (
+      <div className="space-y-8">
+        {sections.map((section, sectionIndex) => (
           <motion.div
             key={section.key}
             initial={{ opacity: 0, y: 30 }}
@@ -80,16 +81,16 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
           >
             <div className="flex items-center mb-6">
               <span className="text-2xl mr-3">{section.icon}</span>
-              <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
+              <h3 className="text-xl font-semibold text-gray-900">{section.title}</h3>
               {state.interiores[section.key] && (
                 <span className="ml-auto text-corporate-600 font-medium">
                   ✓ {state.interiores[section.key]?.name}
                 </span>
               )}
             </div>
-            
+
             <HorizontalOptionGrid
-              options={mockCatalog.options.interiores.colores.sala}
+              options={catalog?.options.interiores[section.key] || []}
               selectedOption={state.interiores[section.key]}
               onSelect={(opt) => handleOptionSelect(section.key, opt, sectionIndex)}
               sectionIndex={sectionIndex}
@@ -98,6 +99,24 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
         ))}
       </div>
 
+      {/* Indicador de progreso */}
+      {!isComplete && (
+        <div className="text-center mt-6">
+          <p className="text-gray-600">
+            {sections.filter(s => state.interiores[s.key] !== null).length} de {sections.length} áreas seleccionadas
+          </p>
+        </div>
+      )}
+
+      {isComplete && (
+        <div className="text-center mt-6">
+          <p className="text-corporate-600 font-semibold">
+            ✓ Todos los interiores seleccionados
+          </p>
+        </div>
+      )}
+
+      {/* Botón continuar */}
       {isComplete && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -120,7 +139,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
           className="text-center mt-8"
         >
           <p className="text-gray-600">
-            Selecciona colores para todas las áreas para continuar
+            Selecciona un color o acabado para todas las áreas para continuar
           </p>
         </motion.div>
       )}
