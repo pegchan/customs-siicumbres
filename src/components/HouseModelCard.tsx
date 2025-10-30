@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ImageWithFallback } from './ImageWithFallback';
+import { ModelImageModal } from './ModelImageModal';
 import type { HouseModel } from '../types';
 
 interface HouseModelCardProps {
@@ -9,7 +11,15 @@ interface HouseModelCardProps {
 }
 
 export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardProps) {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleZoomClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card selection
+    setShowModal(true);
+  };
+
   return (
+    <>
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -22,14 +32,35 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
       `}
       onClick={() => onSelect(model)}
     >
-      <div className="aspect-video bg-gray-100 overflow-hidden">
+      <div className="aspect-video bg-gray-100 overflow-hidden relative group">
         <ImageWithFallback
           src={model.image}
           alt={model.name}
           fallbackType="text"
           fallbackText={model.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
+
+        {/* Botón de zoom */}
+        <button
+          onClick={handleZoomClick}
+          className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-lg p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          aria-label="Ver imágenes y planos"
+        >
+          <svg
+            className="w-4 h-4 text-corporate-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+            />
+          </svg>
+        </button>
       </div>
       
       <div className="p-4">
@@ -53,7 +84,7 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute top-2 right-2 bg-corporate-500 text-white rounded-full p-2"
+          className="absolute top-2 left-2 bg-corporate-500 text-white rounded-full p-2"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -61,5 +92,12 @@ export function HouseModelCard({ model, isSelected, onSelect }: HouseModelCardPr
         </motion.div>
       )}
     </motion.div>
+
+    <ModelImageModal
+      isOpen={showModal}
+      onClose={() => setShowModal(false)}
+      model={model}
+    />
+    </>
   );
 }
