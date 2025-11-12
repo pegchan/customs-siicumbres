@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
 import { HorizontalOptionGrid } from './HorizontalOptionGrid';
@@ -8,19 +9,57 @@ interface InteriorColorsPageProps {
   onNext: () => void;
 }
 
-// Secciones de interiores (colores y maderas combinados)
-const sections = [
-  { key: 'sala' as keyof CustomizationState['interiores'], title: 'Sala', icon: '🛋️' },
-  { key: 'comedor' as keyof CustomizationState['interiores'], title: 'Comedor', icon: '🍽️' },
-  { key: 'recamara1' as keyof CustomizationState['interiores'], title: 'Recámara Principal', icon: '🛏️' },
-  { key: 'recamara2' as keyof CustomizationState['interiores'], title: 'Recámara 2', icon: '🛏️' },
-  { key: 'recamara3' as keyof CustomizationState['interiores'], title: 'Recámara 3', icon: '🛏️' },
-  { key: 'escaleras' as keyof CustomizationState['interiores'], title: 'Estudio', icon: '📚' },
-];
+// Iconos por defecto para áreas comunes
+const defaultIcons: Record<string, string> = {
+  sala: '🛋️',
+  comedor: '🍽️',
+  escalera: '📐',
+  recamara1: '🛏️',
+  recamara2: '🛏️',
+  recamara3: '🛏️',
+  estudio: '📚',
+  cocina: '👨‍🍳',
+  bano1: '🚿',
+  bano2: '🛁',
+  medio_bano: '🚽',
+};
 
 export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
   const { state, setInteriorColor, catalog } = useCustomization();
   const { scrollToNextSection, scrollToTop } = useAutoScroll();
+
+  // Obtener secciones dinámicamente desde el catálogo
+  const sections = React.useMemo(() => {
+    // Verificar si existe la estructura correcta
+    if (!catalog?.options?.interiores?.colores) {
+      console.warn('InteriorColorsPage: No se encontró catalog.options.interiores.colores');
+      return [];
+    }
+
+    // Obtener las keys de las áreas disponibles desde el catálogo
+    const areas = Object.keys(catalog.options.interiores.colores);
+
+    return areas.map(areaKey => {
+      // Buscar el nombre legible del área desde las opciones
+      const options = catalog.options.interiores.colores[areaKey];
+      let areaName = areaKey;
+
+      // Intentar obtener un nombre más amigable desde las opciones
+      if (options && options.length > 0) {
+        // Formatear el nombre del área (capitalizar primera letra, etc.)
+        areaName = areaKey
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, str => str.toUpperCase())
+          .replace('recamara', 'Recámara ');
+      }
+
+      return {
+        key: areaKey as keyof CustomizationState['interiores'],
+        title: areaName,
+        icon: defaultIcons[areaKey] || '🏠',
+      };
+    });
+  }, [catalog]);
 
   const handleOptionSelect = (section: keyof CustomizationState['interiores'], option: CustomizationOption, sectionIndex: number) => {
     setInteriorColor(section, option);
@@ -90,7 +129,7 @@ export function InteriorColorsPage({ onNext }: InteriorColorsPageProps) {
             </div>
 
             <HorizontalOptionGrid
-              options={catalog?.options.interiores[section.key] || []}
+              options={catalog?.options?.interiores?.colores?.[section.key] || []}
               selectedOption={state.interiores[section.key]}
               onSelect={(opt) => handleOptionSelect(section.key, opt, sectionIndex)}
               sectionIndex={sectionIndex}

@@ -1,14 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CustomizationStep } from '../types';
 import { useCustomization } from '../context/CustomizationContext';
+import { extractCategories } from '../utils/categoryHelpers';
 import { CustomizationStepper } from './CustomizationStepper';
 import { ModelSelectionPage } from './ModelSelectionPage';
-import { InteriorColorsPage } from './InteriorColorsPage';
-import { KitchenPage } from './KitchenPage';
-import { BathroomPage } from './BathroomPage';
-import { ClosetsPage } from './ClosetsPage';
-import { ExtrasPage } from './ExtrasPage';
+import { GenericCategoryPage } from './GenericCategoryPage';
 import { SummaryPage } from './SummaryPage';
 import { DocumentPreviewPage } from './DocumentPreviewPage';
 import { SummaryPanel } from './SummaryPanel';
@@ -17,13 +13,26 @@ import { pdfGeneratorService } from '../services/pdfGeneratorService';
 import type { SignatureData } from './DigitalSignature';
 
 export function CustomizationLayout() {
-  const [currentStep, setCurrentStep] = useState<CustomizationStep>('model');
-  const [completedSteps, setCompletedSteps] = useState<CustomizationStep[]>([]);
+  const [currentStep, setCurrentStep] = useState<string>('model');
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [showConfigManager, setShowConfigManager] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const { state } = useCustomization();
+  const { state, refreshCatalog, backendCatalog } = useCustomization();
 
-  const handleStepComplete = (step: CustomizationStep) => {
+  // Construir steps dinámicamente
+  const allSteps = useMemo(() => {
+    const steps = ['model'];
+
+    if (backendCatalog) {
+      const categories = extractCategories(backendCatalog);
+      steps.push(...categories.map(c => c.id));
+    }
+
+    steps.push('resumen');
+    return steps;
+  }, [backendCatalog]);
+
+  const handleStepComplete = (step: string) => {
     if (!completedSteps.includes(step)) {
       setCompletedSteps(prev => [...prev, step]);
     }
@@ -31,17 +40,15 @@ export function CustomizationLayout() {
 
   const handleNext = () => {
     handleStepComplete(currentStep);
-    
-    const steps: CustomizationStep[] = ['model', 'interiores', 'cocina', 'banos', 'closets', 'extras', 'resumen'];
-    const currentIndex = steps.indexOf(currentStep);
-    if (currentIndex < steps.length - 1) {
-      setCurrentStep(steps[currentIndex + 1]);
+    const currentIndex = allSteps.indexOf(currentStep);
+    if (currentIndex < allSteps.length - 1) {
+      setCurrentStep(allSteps[currentIndex + 1]);
     }
   };
 
-  const handleStepClick = (step: CustomizationStep) => {
+  const handleStepClick = (step: string) => {
     setCurrentStep(step);
-    setShowPreview(false); // Salir del preview al cambiar de paso
+    setShowPreview(false);
   };
 
   const handleShowPreview = () => {
@@ -67,24 +74,18 @@ export function CustomizationLayout() {
   };
 
   const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 'model':
-        return <ModelSelectionPage onNext={handleNext} />;
-      case 'interiores':
-        return <InteriorColorsPage onNext={handleNext} />;
-      case 'cocina':
-        return <KitchenPage onNext={handleNext} />;
-      case 'banos':
-        return <BathroomPage onNext={handleNext} />;
-      case 'closets':
-        return <ClosetsPage onNext={handleNext} />;
-      case 'extras':
-        return <ExtrasPage onNext={handleNext} />;
-      case 'resumen':
-        return <SummaryPage onNext={handleBackToStart} onShowPreview={handleShowPreview} />;
-      default:
-        return <ModelSelectionPage onNext={handleNext} />;
+    // Steps especiales que no son categorías del backend
+    if (currentStep === 'model') {
+      return <ModelSelectionPage onNext={handleNext} />;
     }
+
+    if (currentStep === 'resumen') {
+      return <SummaryPage onNext={handleBackToStart} onShowPreview={handleShowPreview} />;
+    }
+
+    // Para TODAS las categorías del backend, usar el componente genérico
+    // Esto incluye: interiores, cocina, banos, closets, extras, recamara-3, etc.
+    return <GenericCategoryPage categoryId={currentStep} onNext={handleNext} />;
   };
 
   // Si estamos en modo preview, mostrar la página de preview
@@ -111,6 +112,17 @@ export function CustomizationLayout() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Refresh Catalog Button */}
+              <button
+                onClick={refreshCatalog}
+                className="p-2 text-corporate-600 hover:text-corporate-800 hover:bg-corporate-50 rounded-lg transition-colors"
+                title="Refrescar Catálogo (Limpiar caché)"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+
               {/* Config Manager Button */}
               <button
                 onClick={() => setShowConfigManager(true)}

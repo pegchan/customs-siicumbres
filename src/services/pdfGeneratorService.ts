@@ -322,6 +322,8 @@ export class PDFGeneratorService {
 
         ${this.generateExtrasHTML(state)}
 
+        ${this.generateDynamicSelectionsHTML(state)}
+
         ${signatureData ? this.generateSignatureHTML(signatureData) : ''}
 
         <!-- Footer -->
@@ -370,7 +372,7 @@ export class PDFGeneratorService {
    */
   private generateExtrasHTML(state: CustomizationState): string {
     const extras = [];
-    
+
     if (state.extras.colorFachada) {
       extras.push({ label: 'Color de Fachada', value: state.extras.colorFachada.name });
     }
@@ -409,6 +411,83 @@ export class PDFGeneratorService {
   }
 
   /**
+   * Genera HTML para selecciones dinámicas
+   */
+  private generateDynamicSelectionsHTML(state: CustomizationState): string {
+    if (!state.dynamicSelections) return '';
+
+    const categoryIcons: Record<string, string> = {
+      interiores: '🎨',
+      cocina: '🍳',
+      banos: '🚿',
+      closets: '💼',
+      extras: '✨',
+    };
+
+    let sectionsHTML = '';
+
+    Object.entries(state.dynamicSelections).forEach(([categoryId, categorySelections]) => {
+      const hasSelections = Object.values(categorySelections).some(subcategorySelections =>
+        Object.values(subcategorySelections).some(selection => selection !== null)
+      );
+
+      if (!hasSelections) return;
+
+      // Formatear nombre de categoría
+      const categoryName = categoryId
+        .split(/[-_]/)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+      // Recolectar todos los items de esta categoría
+      const items: Array<{ label: string; value: string }> = [];
+      Object.entries(categorySelections).forEach(([subcategoryId, subcategorySelections]) => {
+        Object.entries(subcategorySelections).forEach(([areaId, selection]) => {
+          if (selection) {
+            const subcategoryName = subcategoryId
+              .split(/[-_]/)
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+            const areaName = areaId
+              .split(/[-_]/)
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+
+            items.push({
+              label: `${subcategoryName} - ${areaName}`,
+              value: selection.name
+            });
+          }
+        });
+      });
+
+      if (items.length > 0) {
+        const itemsHTML = items.map(item => `
+          <div class="item">
+            <span class="item-label">${item.label}:</span>
+            <span class="item-value">${item.value}</span>
+          </div>
+        `).join('');
+
+        const icon = categoryIcons[categoryId] || '📦';
+
+        sectionsHTML += `
+          <div class="section">
+              <div class="section-header">
+                  <h2 class="section-title">${icon} ${categoryName}</h2>
+              </div>
+              <div class="items-grid">
+                  ${itemsHTML}
+              </div>
+          </div>
+        `;
+      }
+    });
+
+    return sectionsHTML;
+  }
+
+  /**
    * Genera datos de resumen estadístico
    */
   private generateSummaryData(state: CustomizationState) {
@@ -444,6 +523,18 @@ export class PDFGeneratorService {
     if (state.extras.patio.estilo) completedSelections++;
     if (state.extras.patio.domo) completedSelections++;
     totalPossibleSelections += 5; // extras básicos
+
+    // Contar selecciones dinámicas
+    if (state.dynamicSelections) {
+      Object.values(state.dynamicSelections).forEach(categorySelections => {
+        Object.values(categorySelections).forEach(subcategorySelections => {
+          Object.values(subcategorySelections).forEach(areaSelection => {
+            totalPossibleSelections++;
+            if (areaSelection) completedSelections++;
+          });
+        });
+      });
+    }
 
     const completionPercentage = Math.round((completedSelections / totalPossibleSelections) * 100);
 

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
+import { formatDisplayName } from '../utils/backendNavigator';
 
 export function SummaryPanel() {
   const { state } = useCustomization();
@@ -7,23 +8,34 @@ export function SummaryPanel() {
   const countSelections = () => {
     let count = 0;
     if (state.selectedModel) count++;
-    
+
     Object.values(state.interiores).forEach(selection => {
       if (selection) count++;
     });
-    
+
     Object.values(state.cocina).forEach(selection => {
       if (selection) count++;
     });
-    
+
     Object.values(state.banos).forEach(selection => {
       if (selection) count++;
     });
-    
+
     Object.values(state.closets).forEach(selection => {
       if (selection) count++;
     });
-    
+
+    // Contar selecciones dinámicas
+    if (state.dynamicSelections) {
+      Object.values(state.dynamicSelections).forEach(categorySelections => {
+        Object.values(categorySelections).forEach(subcategorySelections => {
+          Object.values(subcategorySelections).forEach(areaSelection => {
+            if (areaSelection) count++;
+          });
+        });
+      });
+    }
+
     return count;
   };
 
@@ -188,7 +200,7 @@ export function SummaryPanel() {
               <div className="space-y-2">
                 {Object.entries(state.closets).map(([item, selection]) => {
                   if (!selection) return null;
-                  
+
                   const itemNames: Record<string, string> = {
                     recamara1: 'Closet Recámara 1',
                     recamara2: 'Closet Recámara 2',
@@ -196,7 +208,7 @@ export function SummaryPanel() {
                     muebleBajoEscalera: 'Mueble Bajo Escalera',
                     puertasMarcoEscalera: 'Puertas Marco Escalera',
                   };
-                  
+
                   return (
                     <div key={item} className="flex justify-between items-center text-sm">
                       <span className="text-corporate-600">{itemNames[item]}:</span>
@@ -207,6 +219,57 @@ export function SummaryPanel() {
               </div>
             </motion.div>
           )}
+
+          {/* Selecciones Dinámicas - Todas las categorías del backend */}
+          {state.dynamicSelections && Object.entries(state.dynamicSelections).map(([categoryId, categorySelections]) => {
+            // Verificar si hay selecciones en esta categoría
+            const hasSelections = Object.values(categorySelections).some(subcategorySelections =>
+              Object.values(subcategorySelections).some(selection => selection !== null)
+            );
+
+            if (!hasSelections) return null;
+
+            // Iconos por categoría
+            const categoryIcons: Record<string, string> = {
+              interiores: '🎨',
+              cocina: '🍳',
+              banos: '🚿',
+              closets: '💼',
+              extras: '✨',
+            };
+
+            return (
+              <motion.div
+                key={categoryId}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="border-b border-gray-200 pb-4"
+              >
+                <h3 className="font-semibold text-corporate-800 mb-2 flex items-center">
+                  <span className="mr-2">{categoryIcons[categoryId] || '📦'}</span>
+                  {formatDisplayName(categoryId)}
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(categorySelections).map(([subcategoryId, subcategorySelections]) => {
+                    return Object.entries(subcategorySelections).map(([areaId, selection]) => {
+                      if (!selection) return null;
+
+                      return (
+                        <div key={`${subcategoryId}-${areaId}`} className="flex justify-between items-start text-sm gap-2">
+                          <span className="text-corporate-600 text-xs">
+                            {formatDisplayName(subcategoryId)} - {formatDisplayName(areaId)}:
+                          </span>
+                          <span className="font-medium text-corporate-800 text-right flex-shrink-0">
+                            {selection.name}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {totalSelections > 0 && (

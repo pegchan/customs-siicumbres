@@ -1,65 +1,52 @@
 import { motion } from 'framer-motion';
-import type { CustomizationStep } from '../types';
+import { useMemo } from 'react';
+import { useCustomization } from '../context/CustomizationContext';
+import { extractCategories } from '../utils/categoryHelpers';
 
 interface Step {
-  id: CustomizationStep;
+  id: string;
   title: string;
   description: string;
   icon: string;
 }
 
-const steps: Step[] = [
-  {
-    id: 'model',
-    title: 'Modelo',
-    description: 'Selecciona tu casa',
-    icon: '🏠',
-  },
-  {
-    id: 'interiores',
-    title: 'Interiores',
-    description: 'Colores de habitaciones',
-    icon: '🎨',
-  },
-  {
-    id: 'cocina',
-    title: 'Cocina',
-    description: 'Alacenas y cubiertas',
-    icon: '🍳',
-  },
-  {
-    id: 'banos',
-    title: 'Baños',
-    description: 'Muebles y acabados',
-    icon: '🚿',
-  },
-  {
-    id: 'closets',
-    title: 'Closets',
-    description: 'Acabados de madera',
-    icon: '💼',
-  },
-  {
-    id: 'extras',
-    title: 'Extras',
-    description: 'Fachada y accesorios',
-    icon: '✨',
-  },
-  {
-    id: 'resumen',
-    title: 'Resumen',
-    description: 'Revisa tu selección',
-    icon: '📝',
-  },
-];
-
 interface CustomizationStepperProps {
-  currentStep: CustomizationStep;
-  completedSteps: CustomizationStep[];
-  onStepClick: (step: CustomizationStep) => void;
+  currentStep: string;
+  completedSteps: string[];
+  onStepClick: (step: string) => void;
 }
 
 export function CustomizationStepper({ currentStep, completedSteps, onStepClick }: CustomizationStepperProps) {
+  const { backendCatalog } = useCustomization();
+
+  // Construir steps dinámicamente desde el backend catalog
+  const steps = useMemo(() => {
+    const allSteps: Step[] = [
+      {
+        id: 'model',
+        title: 'Modelo',
+        description: 'Selecciona tu casa',
+        icon: '🏠',
+      },
+    ];
+
+    // Agregar categorías dinámicas del backend
+    if (backendCatalog) {
+      const categories = extractCategories(backendCatalog);
+      allSteps.push(...categories);
+    }
+
+    // Agregar step final de resumen
+    allSteps.push({
+      id: 'resumen',
+      title: 'Resumen',
+      description: 'Revisa tu selección',
+      icon: '📝',
+    });
+
+    return allSteps;
+  }, [backendCatalog]);
+
   const currentStepIndex = steps.findIndex(step => step.id === currentStep);
 
   return (

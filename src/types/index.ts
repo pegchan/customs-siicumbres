@@ -27,7 +27,9 @@ export interface CustomizationState {
     recamara1: CustomizationOption | null;
     recamara2: CustomizationOption | null;
     recamara3: CustomizationOption | null;
-    escaleras: CustomizationOption | null;
+    escalera: CustomizationOption | null; // Cambiado de 'escalera' a 'escalera' (singular)
+    // Soporte para áreas dinámicas del backend
+    [key: string]: CustomizationOption | null;
   };
   cocina: {
     alacenaSuperior: CustomizationOption | null;
@@ -63,19 +65,25 @@ export interface CustomizationState {
     };
     reflejante: CustomizationOption[] | null;
   };
+  // Nuevo: Selecciones dinámicas para cualquier categoría del backend
+  dynamicSelections: {
+    [categoryId: string]: {
+      [subcategoryId: string]: {
+        [areaId: string]: CustomizationOption | null;
+      };
+    };
+  };
 }
 
 export interface CustomizationCatalog {
   houseModels: HouseModel[];
   options: {
     interiores: {
-      // Colores y Maderas combinados por área
-      sala: CustomizationOption[];
-      comedor: CustomizationOption[];
-      recamara1: CustomizationOption[];
-      recamara2: CustomizationOption[];
-      recamara3: CustomizationOption[];
-      escaleras: CustomizationOption[];
+      colores: {
+        // DINÁMICO: Todas las áreas vienen del backend
+        // No hardcodeamos áreas específicas
+        [key: string]: CustomizationOption[];
+      };
     };
     cocina: {
       alacenas: {

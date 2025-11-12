@@ -1,16 +1,34 @@
 import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { CustomizationState, CustomizationOption, HouseModel, CustomizationCatalog } from '../types';
+import type { BackendFullCatalog } from '../services/catalogAPI';
 import { useCatalogLoader } from '../hooks/useCatalogLoader';
 import { transformBackendCatalog } from '../data/catalogTransformer';
 
-type CustomizationAction = 
+// Estructura para almacenar selecciones dinámicas
+// Formato: dynamicSelections[categoryId][subcategoryId][areaId] = CustomizationOption
+interface DynamicSelections {
+  [categoryId: string]: {
+    [subcategoryId: string]: {
+      [areaId: string]: CustomizationOption | null;
+    };
+  };
+}
+
+type CustomizationAction =
   | { type: 'SET_MODEL'; payload: HouseModel }
   | { type: 'SET_INTERIOR_COLOR'; category: keyof CustomizationState['interiores']; payload: CustomizationOption }
   | { type: 'SET_KITCHEN_OPTION'; category: keyof CustomizationState['cocina']; payload: CustomizationOption }
   | { type: 'SET_BATHROOM_OPTION'; category: keyof CustomizationState['banos']; payload: CustomizationOption }
   | { type: 'SET_CLOSET_OPTION'; category: keyof CustomizationState['closets']; payload: CustomizationOption }
   | { type: 'SET_EXTRA_OPTION'; category: string; payload: CustomizationOption }
+  | {
+      type: 'SET_DYNAMIC_OPTION';
+      categoryId: string;
+      subcategoryId: string;
+      areaId: string;
+      payload: CustomizationOption
+    }
   | { type: 'RESET_CUSTOMIZATION' };
 
 const initialState: CustomizationState = {
@@ -22,7 +40,7 @@ const initialState: CustomizationState = {
     recamara1: null,
     recamara2: null,
     recamara3: null,
-    escaleras: null,
+    escalera: null, // Cambiado de 'escalera' a 'escalera'
   },
   cocina: {
     alacenaSuperior: null,
@@ -58,13 +76,15 @@ const initialState: CustomizationState = {
     },
     reflejante: null,
   },
+  // Nuevo: Selecciones dinámicas para cualquier categoría
+  dynamicSelections: {} as DynamicSelections,
 };
 
 function customizationReducer(state: CustomizationState, action: CustomizationAction): CustomizationState {
   switch (action.type) {
     case 'SET_MODEL':
       return { ...state, selectedModel: action.payload };
-    
+
     case 'SET_INTERIOR_COLOR':
       return {
         ...state,
@@ -73,7 +93,7 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
+
     case 'SET_KITCHEN_OPTION':
       return {
         ...state,
@@ -82,7 +102,7 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
+
     case 'SET_BATHROOM_OPTION':
       return {
         ...state,
@@ -91,7 +111,7 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
+
     case 'SET_CLOSET_OPTION':
       return {
         ...state,
@@ -100,10 +120,25 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
           [action.category]: action.payload,
         },
       };
-    
+
+    case 'SET_DYNAMIC_OPTION':
+      return {
+        ...state,
+        dynamicSelections: {
+          ...state.dynamicSelections,
+          [action.categoryId]: {
+            ...state.dynamicSelections[action.categoryId],
+            [action.subcategoryId]: {
+              ...(state.dynamicSelections[action.categoryId]?.[action.subcategoryId] || {}),
+              [action.areaId]: action.payload,
+            },
+          },
+        },
+      };
+
     case 'RESET_CUSTOMIZATION':
       return initialState;
-    
+
     default:
       return state;
   }
@@ -113,12 +148,17 @@ interface CustomizationContextType {
   state: CustomizationState;
   dispatch: React.Dispatch<CustomizationAction>;
   catalog: CustomizationCatalog | null;
+  backendCatalog: BackendFullCatalog | null; // Agregar backend catalog para categorías dinámicas
   setModel: (model: HouseModel) => void;
   setInteriorColor: (category: keyof CustomizationState['interiores'], option: CustomizationOption) => void;
   setKitchenOption: (category: keyof CustomizationState['cocina'], option: CustomizationOption) => void;
   setBathroomOption: (category: keyof CustomizationState['banos'], option: CustomizationOption) => void;
   setClosetOption: (category: keyof CustomizationState['closets'], option: CustomizationOption) => void;
+  // Nuevo: Métodos para opciones dinámicas
+  setDynamicOption: (categoryId: string, subcategoryId: string, areaId: string, option: CustomizationOption) => void;
+  getDynamicOption: (categoryId: string, subcategoryId: string, areaId: string) => CustomizationOption | null;
   resetCustomization: () => void;
+  refreshCatalog: () => void;
 }
 
 const CustomizationContext = createContext<CustomizationContextType | undefined>(undefined);
@@ -127,7 +167,7 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(customizationReducer, initialState);
 
   // Cargar catálogo desde el backend
-  const { catalog: backendCatalog, loading, error, retry } = useCatalogLoader();
+  const { catalog: backendCatalog, loading, error, retry, clearCache } = useCatalogLoader();
 
   // Transformar catálogo cuando esté disponible
   const catalog = useMemo(() => {
@@ -155,8 +195,37 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_CLOSET_OPTION', category, payload: option });
   };
 
+  // Nuevos métodos para opciones dinámicas
+  const setDynamicOption = (
+    categoryId: string,
+    subcategoryId: string,
+    areaId: string,
+    option: CustomizationOption
+  ) => {
+    dispatch({
+      type: 'SET_DYNAMIC_OPTION',
+      categoryId,
+      subcategoryId,
+      areaId,
+      payload: option,
+    });
+  };
+
+  const getDynamicOption = (
+    categoryId: string,
+    subcategoryId: string,
+    areaId: string
+  ): CustomizationOption | null => {
+    return state.dynamicSelections?.[categoryId]?.[subcategoryId]?.[areaId] || null;
+  };
+
   const resetCustomization = () => {
     dispatch({ type: 'RESET_CUSTOMIZATION' });
+  };
+
+  const refreshCatalog = () => {
+    console.log('[CustomizationContext] Refreshing catalog...');
+    clearCache();
   };
 
   // Mostrar loading state
@@ -207,12 +276,16 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
       state,
       dispatch,
       catalog,
+      backendCatalog,
       setModel,
       setInteriorColor,
       setKitchenOption,
       setBathroomOption,
       setClosetOption,
+      setDynamicOption,
+      getDynamicOption,
       resetCustomization,
+      refreshCatalog,
     }}>
       {children}
     </CustomizationContext.Provider>

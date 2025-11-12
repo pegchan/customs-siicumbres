@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useCustomization } from '../context/CustomizationContext';
+import { formatDisplayName } from '../utils/backendNavigator';
 
 interface SummaryPageProps {
   onNext?: () => void;
@@ -47,6 +48,18 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
     const closetKeys = Object.keys(state.closets);
     totalSelections += closetKeys.length;
     completedSelections += Object.values(state.closets).filter(Boolean).length;
+
+    // Count dynamic selections
+    if (state.dynamicSelections) {
+      Object.values(state.dynamicSelections).forEach(categorySelections => {
+        Object.values(categorySelections).forEach(subcategorySelections => {
+          Object.values(subcategorySelections).forEach(areaSelection => {
+            totalSelections++;
+            if (areaSelection) completedSelections++;
+          });
+        });
+      });
+    }
 
     return { totalSelections, completedSelections };
   };
@@ -246,7 +259,7 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
             <div className="space-y-3">
               {Object.entries(state.closets).map(([item, selection]) => {
                 if (!selection) return null;
-                
+
                 const itemNames: Record<string, string> = {
                   recamara1: 'Closet Recámara 1',
                   recamara2: 'Closet Recámara 2',
@@ -254,7 +267,7 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
                   muebleBajoEscalera: 'Mueble Bajo Escalera',
                   puertasMarcoEscalera: 'Puertas Marco Escalera',
                 };
-                
+
                 return (
                   <div key={item} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                     <span className="text-gray-600">{itemNames[item]}</span>
@@ -265,6 +278,53 @@ export function SummaryPage({ onNext, onShowPreview }: SummaryPageProps) {
             </div>
           </motion.div>
         )}
+
+        {/* Dynamic Selections - All backend categories */}
+        {state.dynamicSelections && Object.entries(state.dynamicSelections).map(([categoryId, categorySelections], catIndex) => {
+          const hasSelections = Object.values(categorySelections).some(subcategorySelections =>
+            Object.values(subcategorySelections).some(selection => selection !== null)
+          );
+
+          if (!hasSelections) return null;
+
+          const categoryIcons: Record<string, string> = {
+            interiores: '🎨',
+            cocina: '🍳',
+            banos: '🚿',
+            closets: '💼',
+            extras: '✨',
+          };
+
+          return (
+            <motion.div
+              key={categoryId}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.0 + (catIndex * 0.1) }}
+              className="bg-white rounded-xl shadow-lg p-6"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <span className="mr-2">{categoryIcons[categoryId] || '📦'}</span>
+                {formatDisplayName(categoryId)}
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(categorySelections).map(([subcategoryId, subcategorySelections]) => {
+                  return Object.entries(subcategorySelections).map(([areaId, selection]) => {
+                    if (!selection) return null;
+                    return (
+                      <div key={`${subcategoryId}-${areaId}`} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-b-0 gap-2">
+                        <span className="text-gray-600 text-sm">
+                          {formatDisplayName(subcategoryId)} - {formatDisplayName(areaId)}
+                        </span>
+                        <span className="font-medium text-gray-900 text-right flex-shrink-0">{selection.name}</span>
+                      </div>
+                    );
+                  });
+                })}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Action Buttons */}

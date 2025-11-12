@@ -43,22 +43,37 @@ export function transformBackendCatalog(
     houseModels,
     options: {
       interiores: {
-        // Combinar colores y maderas en un solo array por área
-        sala: [
-          ...transformArray((allOptions.interiores as any)?.colores?.sala),
-          ...transformArray((allOptions.interiores as any)?.maderas?.sala)
-        ],
-        comedor: [
-          ...transformArray((allOptions.interiores as any)?.colores?.comedor),
-          ...transformArray((allOptions.interiores as any)?.maderas?.comedor)
-        ],
-        recamara1: transformArray((allOptions.interiores as any)?.colores?.recamara1),
-        recamara2: transformArray((allOptions.interiores as any)?.colores?.recamara2),
-        recamara3: transformArray((allOptions.interiores as any)?.colores?.recamara3),
-        escaleras: [
-          ...transformArray((allOptions.interiores as any)?.colores?.estudio), // Backend usa "estudio"
-          ...transformArray((allOptions.interiores as any)?.maderas?.escalera)
-        ],
+        colores: (() => {
+          // DINÁMICO: Leer todas las áreas del backend sin hardcodear
+          const coloresBackend = (allOptions.interiores as any)?.colores || {};
+          const maderasBackend = (allOptions.interiores as any)?.maderas || {};
+
+          // Obtener todas las áreas únicas de colores y maderas
+          const allAreas = new Set([
+            ...Object.keys(coloresBackend),
+            ...Object.keys(maderasBackend)
+          ]);
+
+          console.log('[catalogTransformer] Áreas detectadas:', Array.from(allAreas));
+
+          // Construir objeto dinámico con TODAS las áreas del backend
+          const result: { [key: string]: CustomizationOption[] } = {};
+
+          allAreas.forEach(areaKey => {
+            const coloresDeArea = transformArray(coloresBackend[areaKey]);
+            const maderasDeArea = transformArray(maderasBackend[areaKey]);
+
+            // Combinar colores + maderas para esta área
+            result[areaKey] = [
+              ...coloresDeArea,
+              ...maderasDeArea
+            ];
+
+            console.log(`[catalogTransformer] Área "${areaKey}": ${result[areaKey].length} opciones`);
+          });
+
+          return result;
+        })(),
       },
       cocina: {
         alacenas: {
@@ -122,7 +137,7 @@ export function transformBackendCatalog(
 
   console.log('[catalogTransformer] Transformación completa:', {
     modelos: catalog.houseModels.length,
-    interioresSala: catalog.options.interiores.sala.length,
+    areasInteriores: Object.keys(catalog.options.interiores.colores).length,
     opcionesCocina: catalog.options.cocina.cubierta.length,
   });
 
@@ -162,14 +177,12 @@ export function debugCatalogStructure(catalog: CustomizationCatalog): void {
 
   console.log('Modelos:', catalog.houseModels.map(m => m.name));
 
-  console.log('Interiores:', {
-    sala: catalog.options.interiores.sala.length,
-    comedor: catalog.options.interiores.comedor.length,
-    recamara1: catalog.options.interiores.recamara1.length,
-    recamara2: catalog.options.interiores.recamara2.length,
-    recamara3: catalog.options.interiores.recamara3.length,
-    escaleras: catalog.options.interiores.escaleras.length,
+  // Construir objeto dinámico con todas las áreas
+  const interioresDebug: { [key: string]: number } = {};
+  Object.keys(catalog.options.interiores.colores).forEach(areaKey => {
+    interioresDebug[areaKey] = catalog.options.interiores.colores[areaKey].length;
   });
+  console.log('Interiores:', interioresDebug);
 
   console.log('Cocina:', {
     alacenas: Object.keys(catalog.options.cocina.alacenas).reduce((acc, key) => {

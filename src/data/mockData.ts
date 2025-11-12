@@ -97,13 +97,15 @@ export const mockCatalog: CustomizationCatalog = {
   houseModels,
   options: {
     interiores: {
-      // Combinar colores y maderas en un solo array por área
-      sala: [...interiorColors, ...woodFinishes],
-      comedor: [...interiorColors, ...woodFinishes],
-      recamara1: interiorColors,
-      recamara2: interiorColors,
-      recamara3: interiorColors,
-      escaleras: [...interiorColors, ...woodFinishes],
+      colores: {
+        // Combinar colores y maderas en un solo array por área
+        sala: [...interiorColors, ...woodFinishes],
+        comedor: [...interiorColors, ...woodFinishes],
+        recamara1: interiorColors,
+        recamara2: interiorColors,
+        recamara3: interiorColors,
+        escalera: [...interiorColors, ...woodFinishes],
+      },
     },
     cocina: {
       alacenas: {

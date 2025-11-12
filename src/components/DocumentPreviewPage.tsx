@@ -4,6 +4,7 @@ import { useCustomization } from '../context/CustomizationContext';
 import type { CustomizationOption } from '../types/index';
 import { DigitalSignature } from './DigitalSignature';
 import type { SignatureData } from './DigitalSignature';
+import { formatDisplayName } from '../utils/backendNavigator';
 
 interface DocumentPreviewPageProps {
   onBack: () => void;
@@ -43,19 +44,30 @@ export function DocumentPreviewPage({ onBack, onGeneratePDF }: DocumentPreviewPa
   const getSummaryData = () => {
     let totalSelections = 0;
     if (state.selectedModel) totalSelections++;
-    
+
     // Contar todas las selecciones
     totalSelections += Object.values(state.interiores).filter(Boolean).length;
     totalSelections += Object.values(state.cocina).filter(Boolean).length;
     totalSelections += Object.values(state.banos).filter(Boolean).length;
     totalSelections += Object.values(state.closets).filter(Boolean).length;
-    
+
     // Contar extras
     if (state.extras.colorFachada) totalSelections++;
     if (state.extras.minisplit) totalSelections++;
     if (state.extras.paneles) totalSelections++;
     if (state.extras.patio.estilo) totalSelections++;
     if (state.extras.patio.domo) totalSelections++;
+
+    // Contar selecciones dinámicas
+    if (state.dynamicSelections) {
+      Object.values(state.dynamicSelections).forEach(categorySelections => {
+        Object.values(categorySelections).forEach(subcategorySelections => {
+          Object.values(subcategorySelections).forEach(areaSelection => {
+            if (areaSelection) totalSelections++;
+          });
+        });
+      });
+    }
 
     return { totalSelections };
   };
@@ -313,6 +325,47 @@ export function DocumentPreviewPage({ onBack, onGeneratePDF }: DocumentPreviewPa
                 </div>
               </motion.div>
             )}
+
+            {/* Selecciones Dinámicas - Todas las categorías del backend */}
+            {state.dynamicSelections && Object.entries(state.dynamicSelections).map(([categoryId, categorySelections], catIndex) => {
+              // Verificar si hay selecciones en esta categoría
+              const hasSelections = Object.values(categorySelections).some(subcategorySelections =>
+                Object.values(subcategorySelections).some(selection => selection !== null)
+              );
+
+              if (!hasSelections) return null;
+
+              // Iconos por categoría
+              const categoryIcons: Record<string, string> = {
+                interiores: '🎨',
+                cocina: '🍳',
+                banos: '🚿',
+                closets: '💼',
+                extras: '✨',
+              };
+
+              // Recolectar todos los items de la categoría
+              const categoryItems: Array<{ label: string; option: CustomizationOption }> = [];
+              Object.entries(categorySelections).forEach(([subcategoryId, subcategorySelections]) => {
+                Object.entries(subcategorySelections).forEach(([areaId, selection]) => {
+                  if (selection) {
+                    categoryItems.push({
+                      label: `${formatDisplayName(subcategoryId)} - ${formatDisplayName(areaId)}`,
+                      option: selection
+                    });
+                  }
+                });
+              });
+
+              return (
+                <DocumentSection
+                  key={categoryId}
+                  title={`${categoryIcons[categoryId] || '📦'} ${formatDisplayName(categoryId)}`}
+                  items={categoryItems}
+                  delay={0.9 + (catIndex * 0.1)}
+                />
+              );
+            })}
 
             {/* Footer */}
             <div className="text-center text-gray-500 text-sm mt-8 pt-8 border-t border-gray-200">
