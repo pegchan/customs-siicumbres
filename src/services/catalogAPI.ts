@@ -56,22 +56,77 @@ class CatalogAPIService {
 
   /**
    * Obtener catálogo completo (modelos + opciones)
-   * Endpoint recomendado: hace un solo request
+   * Si se proporciona modelId, usa el endpoint dinámico por modelo
+   * Si no, obtiene todos los modelos sin opciones
    */
-  async getFullCatalog(): Promise<BackendFullCatalog> {
-    const cacheKey = 'full-catalog';
+  async getFullCatalog(modelId?: number | string): Promise<BackendFullCatalog> {
+    // Si hay modelId, usar endpoint por modelo
+    if (modelId) {
+      return this.getCatalogByModel(modelId);
+    }
+
+    // Si no hay modelId, solo cargar modelos
+    const cacheKey = 'house-models-only';
 
     // Verificar cache
     const cached = this.getCachedData(cacheKey);
     if (cached) {
-      console.log('[CatalogAPI] Usando datos en cache');
+      console.log('[CatalogAPI] Usando modelos en cache');
       return cached;
     }
 
     try {
-      console.log('[CatalogAPI] Fetching full catalog from backend...');
+      console.log('[CatalogAPI] Fetching house models from backend...');
 
-      const response = await this.fetchWithTimeout(`${API_CONFIG.baseURL}/full`);
+      const response = await this.fetchWithTimeout(`${API_CONFIG.baseURL}/house-models`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result: APIResponse<BackendHouseModel[]> = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || 'Error al obtener modelos');
+      }
+
+      console.log('[CatalogAPI] House models loaded successfully:', result.data.length);
+
+      // Formato compatible con BackendFullCatalog
+      const catalogData: BackendFullCatalog = {
+        houseModels: result.data,
+        options: {}
+      };
+
+      // Guardar en cache
+      this.setCacheData(cacheKey, catalogData);
+
+      return catalogData;
+
+    } catch (error) {
+      console.error('[CatalogAPI] Error fetching house models:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener catálogo completo por modelo (modelo + opciones configuradas)
+   * Usa el nuevo endpoint dinámico basado en configuración CRM
+   */
+  async getCatalogByModel(modelId: number | string): Promise<BackendFullCatalog> {
+    const cacheKey = `catalog-model-${modelId}`;
+
+    // Verificar cache
+    const cached = this.getCachedData(cacheKey);
+    if (cached) {
+      console.log(`[CatalogAPI] Usando catálogo del modelo ${modelId} en cache`);
+      return cached;
+    }
+
+    try {
+      console.log(`[CatalogAPI] Fetching catalog for model ${modelId} from backend...`);
+
+      const response = await this.fetchWithTimeout(`${API_CONFIG.baseURL}/by-model/${modelId}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -80,10 +135,10 @@ class CatalogAPIService {
       const result: APIResponse<BackendFullCatalog> = await response.json();
 
       if (!result.success) {
-        throw new Error(result.message || 'Error al obtener catálogo');
+        throw new Error(result.message || 'Error al obtener catálogo del modelo');
       }
 
-      console.log('[CatalogAPI] Catalog loaded successfully:', {
+      console.log(`[CatalogAPI] Catalog for model ${modelId} loaded successfully:`, {
         models: result.data.houseModels?.length || 0,
         categories: Object.keys(result.data.options || {}).length
       });
@@ -94,7 +149,7 @@ class CatalogAPIService {
       return result.data;
 
     } catch (error) {
-      console.error('[CatalogAPI] Error fetching full catalog:', error);
+      console.error(`[CatalogAPI] Error fetching catalog for model ${modelId}:`, error);
       throw error;
     }
   }

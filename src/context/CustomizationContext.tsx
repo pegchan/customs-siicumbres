@@ -166,8 +166,8 @@ const CustomizationContext = createContext<CustomizationContextType | undefined>
 export function CustomizationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(customizationReducer, initialState);
 
-  // Cargar catálogo desde el backend
-  const { catalog: backendCatalog, loading, error, retry, clearCache } = useCatalogLoader();
+  // Cargar catálogo desde el backend (inicialmente sin modelId)
+  const { catalog: backendCatalog, loading, error, retry, clearCache, reloadWithModel } = useCatalogLoader();
 
   // Transformar catálogo cuando esté disponible
   const catalog = useMemo(() => {
@@ -177,6 +177,10 @@ export function CustomizationProvider({ children }: { children: ReactNode }) {
 
   const setModel = (model: HouseModel) => {
     dispatch({ type: 'SET_MODEL', payload: model });
+
+    // Recargar catálogo con las opciones del modelo seleccionado
+    console.log(`[CustomizationContext] Model selected: ${model.id}, reloading catalog...`);
+    reloadWithModel(model.id);
   };
 
   const setInteriorColor = (category: keyof CustomizationState['interiores'], option: CustomizationOption) => {
