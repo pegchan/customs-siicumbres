@@ -1,7 +1,15 @@
+export interface OptionImage {
+  url: string;
+  thumbnail: string;
+  is_primary: boolean;
+  display_order: number;
+}
+
 export interface CustomizationOption {
   id: string;
   name: string;
-  image?: string;
+  image?: string; // Mantener para compatibilidad con datos antiguos
+  images?: OptionImage[]; // Nuevo: array de múltiples imágenes
   category: string;
   subcategory?: string;
   price?: number;
