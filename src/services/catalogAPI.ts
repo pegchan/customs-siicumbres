@@ -33,6 +33,7 @@ export interface BackendFullCatalog {
       };
     };
   };
+  categoryOrder?: string[]; // Orden de categorías definido en el CRM
 }
 
 export interface APIResponse<T> {

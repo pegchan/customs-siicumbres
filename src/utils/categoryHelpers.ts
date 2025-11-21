@@ -50,6 +50,7 @@ const DEFAULT_CATEGORY_METADATA = {
 /**
  * Extrae categorías dinámicamente del backend catalog
  * Excluye categorías vacías
+ * Respeta el orden definido en categoryOrder del CRM si está disponible
  */
 export function extractCategories(backendCatalog: BackendFullCatalog | null): CategoryInfo[] {
   if (!backendCatalog || !backendCatalog.options) {
@@ -58,13 +59,19 @@ export function extractCategories(backendCatalog: BackendFullCatalog | null): Ca
 
   const categories: CategoryInfo[] = [];
 
-  // Obtener todas las keys de options
-  Object.keys(backendCatalog.options).forEach((categoryKey) => {
+  // Usar categoryOrder del CRM si está disponible, sino usar Object.keys()
+  // categoryOrder viene del backend y respeta el orden configurado en el CRM
+  const orderedKeys = backendCatalog.categoryOrder && backendCatalog.categoryOrder.length > 0
+    ? backendCatalog.categoryOrder
+    : Object.keys(backendCatalog.options);
+
+  // Iterar sobre las keys en el orden correcto
+  orderedKeys.forEach((categoryKey) => {
     const categoryData = backendCatalog.options[categoryKey];
 
-    // Verificar que la categoría tenga contenido
+    // Verificar que la categoría exista y tenga contenido
     if (!categoryData || Object.keys(categoryData).length === 0) {
-      return; // Skip categorías vacías
+      return; // Skip categorías vacías o no existentes
     }
 
     // Obtener metadata (conocida o default)
